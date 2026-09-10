@@ -1,4 +1,3 @@
-{{-- resources/views/items/index.blade.php --}}
 <x-app-layout>
     <x-slot name="header">
         <div class="flex justify-between items-center">
@@ -46,23 +45,32 @@
                                 <td class="px-6 py-4 text-gray-900 dark:text-gray-100">{{ $item->sku }}</td>
                                 <td class="px-6 py-4 text-gray-900 dark:text-gray-100">{{ $item->category->name }}</td>
                                 <td class="px-6 py-4">
-                                    <span class="{{ $item->current_stock <= $item->minimum_stock ? 'text-red-600 dark:text-red-400 font-semibold' : 'text-gray-900 dark:text-gray-100' }}">
+                                    <span
+                                        class="{{ $item->current_stock <= $item->minimum_stock ? 'text-red-600 dark:text-red-400 font-semibold' : 'text-gray-900 dark:text-gray-100' }}">
                                         {{ $item->current_stock }}
                                     </span>
                                     @if ($item->current_stock <= $item->minimum_stock)
                                         <span class="text-xs text-red-600 dark:text-red-400">(Low)</span>
                                     @endif
                                 </td>
-                                <td class="px-6 py-4 text-gray-900 dark:text-gray-100">RM {{ number_format($item->unit_price, 2) }}</td>
-                                <td class="px-6 py-4 text-right space-x-3">
+                                <td class="px-6 py-4 text-gray-900 dark:text-gray-100">RM
+                                    {{ number_format($item->unit_price, 2) }}</td>
+                                <td class="px-6 py-4 text-right space-x-2">
+                                    <a href="{{ route('stock-movements.create', [$item, 'in']) }}"
+                                        class="text-green-600 dark:text-green-400 hover:underline text-xs">In</a>
+                                    <a href="{{ route('stock-movements.create', [$item, 'out']) }}"
+                                        class="text-orange-600 dark:text-orange-400 hover:underline text-xs">Out</a>
+                                    <a href="{{ route('stock-movements.create', [$item, 'adjustment']) }}"
+                                        class="text-blue-600 dark:text-blue-400 hover:underline text-xs">Adjust</a>
+                                    <span class="text-gray-300 dark:text-gray-600">|</span>
                                     <a href="{{ route('items.edit', $item) }}"
-                                        class="text-indigo-600 dark:text-indigo-400 hover:underline">Edit</a>
-                                    <form method="POST" action="{{ route('items.destroy', $item) }}"
-                                        class="inline"
+                                        class="text-indigo-600 dark:text-indigo-400 hover:underline text-xs">Edit</a>
+                                    <form method="POST" action="{{ route('items.destroy', $item) }}" class="inline"
                                         onsubmit="return confirm('Delete this item?')">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="text-red-600 dark:text-red-400 hover:underline">Delete</button>
+                                        <button type="submit"
+                                            class="text-red-600 dark:text-red-400 hover:underline text-xs">Delete</button>
                                     </form>
                                 </td>
                             </tr>
