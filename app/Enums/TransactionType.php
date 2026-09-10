@@ -6,7 +6,7 @@ enum TransactionType: string
 {
     case In =  'in';
     case Out = 'out';
-    case Adjustment = 'Adjustment';
+    case Adjustment = 'adjustment';
 
 
     public function label(): string
