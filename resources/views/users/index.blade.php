@@ -36,18 +36,40 @@
                                 <td class="px-6 py-4 text-gray-900 dark:text-gray-100">{{ $user->name }}</td>
                                 <td class="px-6 py-4 text-gray-900 dark:text-gray-100">{{ $user->email }}</td>
                                 <td class="px-6 py-4">
-                                    <span class="px-2 py-1 text-xs font-semibold rounded-full
-                                        {{ $user->role === 'admin'
-                                            ? 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200'
-                                            : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200' }}">
-                                        {{ ucfirst($user->role) }}
-                                    </span>
+                                    @if ($user->id === auth()->id())
+                                        <span
+                                            class="px-2 py-1 text-xs font-semibold rounded-full
+            {{ $user->role === 'admin'
+                ? 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200'
+                : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200' }}">
+                                            {{ ucfirst($user->role) }}
+                                        </span>
+                                    @elseif ($user->isSuperAdmin())
+                                        <span
+                                            class="px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">
+                                            Superadmin
+                                        </span>
+                                    @else
+                                        <form method="POST" action="{{ route('users.updateRole', $user) }}"
+                                            onsubmit="return confirm('Change ' + '{{ $user->name }}' + '\'s role to ' + this.role.options[this.role.selectedIndex].text + '?')">
+                                            @csrf
+                                            @method('PATCH')
+                                            <select name="role" onchange="this.form.submit()"
+                                                class="text-xs border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 rounded-md focus:border-indigo-500 focus:ring-indigo-500">
+                                                <option value="staff" {{ $user->role === 'staff' ? 'selected' : '' }}>
+                                                    Staff</option>
+                                                <option value="admin" {{ $user->role === 'admin' ? 'selected' : '' }}>
+                                                    Admin</option>
+                                            </select>
+                                        </form>
+                                    @endif
                                 </td>
+
+                                {{-- Delete column --}}
                                 <td class="px-6 py-4 text-right">
                                     @can('delete', $user)
-                                        <form method="POST" action="{{ route('users.destroy', $user) }}"
-                                            class="inline"
-                                            onsubmit="return confirm('Padam akaun {{ $user->name }}?')">
+                                        <form method="POST" action="{{ route('users.destroy', $user) }}" class="inline"
+                                            onsubmit="return confirm('Delete {{ $user->name }}\'s account?')">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit"
@@ -61,7 +83,7 @@
                         @empty
                             <tr>
                                 <td colspan="4" class="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
-                                    Tiada staff lagi.
+                                    No staff yet.
                                 </td>
                             </tr>
                         @endforelse
