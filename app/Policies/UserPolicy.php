@@ -3,93 +3,59 @@
 namespace App\Policies;
 
 use App\Models\User;
-use Illuminate\Auth\Access\Response;
 
 class UserPolicy
 {
-
-    public function before(User $user, $ability)
+    /**
+     * Superadmin can do anything — this shortcut runs BEFORE
+     * any other method in this policy (Laravel's "before" hook).
+     */
+    public function before(User $actor, string $ability): ?bool
     {
-        if ($user->isSuperAdmin()) {
+        if ($actor->isSuperAdmin()) {
             return true;
         }
 
-        return null;
+        return null; // fall through to the specific method below
     }
-    /**
-     * Determine whether the user can view any models.
-     */
+
     public function viewAny(User $actor): bool
     {
-        return $actor()->isAdmin();
-    }
-
-    /**
-     * Determine whether the user can view the model.
-     */
-    public function view(User $user, User $model): bool
-    {
-        return false;
-    }
-
-    /**
-     * Determine whether the user can create models.
-     */
-    public function create(User $user): bool
-    {
-        return false;
-    }
-
-    /**
-     * Determine whether the user can update the model.
-     */
-    public function updateRole(User $actor, User $target): bool
-    {
-        if ($target->isSuperAdmin()) {
-            return false; // role superadmin immutable via UI
-        }
-
-        if ($actor->id === $target->id && !$actor->isSuperAdmin()) {
-            return false; // admin tak boleh turunkan diri sendiri jadi staff
-        }
-
         return $actor->isAdmin();
     }
 
-    /**
-     * Determine whether the user can delete the model.
-     */
+    public function create(User $actor): bool
+    {
+        return $actor->isAdmin();
+    }
+
     public function delete(User $actor, User $target): bool
     {
         if ($target->isSuperAdmin()) {
-            return false; // tak boleh delete superadmin, walau siapa pun actor
+            return false; // superadmin can never be deleted
         }
 
         if ($actor->id === $target->id) {
-            return false; // jangan benarkan admin delete diri sendiri
+            return false; // prevent self-deletion
         }
 
         if ($actor->isSuperAdmin()) {
-            return true; // dah settle oleh before(), tapi explicit untuk kejelasan
+            return true; // already handled by before(), explicit for clarity
         }
 
-        // admin biasa cuma boleh delete staff, bukan admin lain
-        return $target->isStaff();
+        return $target->isStaff(); // regular admin can only delete staff
     }
 
-    /**
-     * Determine whether the user can restore the model.
-     */
-    public function restore(User $user, User $model): bool
+    public function updateRole(User $actor, User $target): bool
     {
-        return false;
-    }
+        if ($target->isSuperAdmin()) {
+            return false; // superadmin role is immutable via UI
+        }
 
-    /**
-     * Determine whether the user can permanently delete the model.
-     */
-    public function forceDelete(User $user, User $model): bool
-    {
-        return false;
+        if ($actor->id === $target->id && !$actor->isSuperAdmin()) {
+            return false; // admin can't demote themselves
+        }
+
+        return $actor->isAdmin();
     }
 }
