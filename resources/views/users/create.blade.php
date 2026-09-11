@@ -29,7 +29,7 @@
                         <x-input-label for="role" value="Role" />
                         <select id="role" name="role" required
                             class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
-                            <option value="">-- Pilih Role --</option>
+                            <option value="">-- Select Role --</option>
                             <option value="staff" {{ old('role') === 'staff' ? 'selected' : '' }}>Staff</option>
                             <option value="admin" {{ old('role') === 'admin' ? 'selected' : '' }}>Admin</option>
                         </select>
@@ -37,12 +37,13 @@
                     </div>
 
                     <p class="mt-4 text-xs text-gray-500 dark:text-gray-400">
-                        Staff akan menerima email untuk menetapkan kata laluan sendiri.
-                        Kata laluan awal tidak akan dihantar melalui email.
+                        The staff member will receive an email to set their own password.
+                        The initial password will never be sent via email.
                     </p>
 
                     <div class="flex items-center justify-end mt-6">
-                        <a href="{{ route('users.index') }}" class="text-sm text-gray-600 dark:text-gray-400 mr-4">Cancel</a>
+                        <a href="{{ route('users.index') }}"
+                            class="text-sm text-gray-600 dark:text-gray-400 mr-4">Cancel</a>
                         <x-primary-button>Create Staff</x-primary-button>
                     </div>
                 </form>
