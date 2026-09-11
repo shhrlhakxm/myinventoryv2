@@ -18,7 +18,7 @@ Route::get('/dashboard', function () {
 
 Route::middleware(['auth', 'admin'])->group(function () {
     Route::resource('categories', CategoryController::class);
-    Route::resource('users', UserController::class);
+    Route::resource('users', UserController::class)->except(['show','edit','update']);
 });
 
 Route::middleware('auth')->group(function () {
