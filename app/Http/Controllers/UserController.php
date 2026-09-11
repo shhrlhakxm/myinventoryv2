@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\User\StoreUserRequest;
+use App\Http\Requests\User\UpdateUserRoleRequest;
 use App\Models\User;
 use App\Notifications\WelcomeNewStaffNotification;
 use Illuminate\Auth\Events\Registered;
@@ -76,9 +77,13 @@ class UserController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(StoreUserRequest $request, User $user)
+    public function updateRole(UpdateUserRoleRequest $request, User $user)
     {
-        //
+        $user->update(['role'=>$request->role]);
+
+        return redirect()
+            ->route('users.index')
+            ->with('status', "{$user->name}'s role successfully updated to " . ucfirst($user->role) .".");
     }
 
     /**
@@ -92,6 +97,6 @@ class UserController extends Controller
 
         return redirect()
             ->route('users.index')
-            ->with('status', 'User telah dipadam.');
+            ->with('status', 'User has been deleted.');
     }
 }
