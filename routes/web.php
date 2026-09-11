@@ -17,8 +17,13 @@ Route::get('/dashboard', function () {
 
 
 Route::middleware(['auth', 'admin'])->group(function () {
+
+    //Category routes (Admin only)
     Route::resource('categories', CategoryController::class);
-    Route::resource('users', UserController::class)->except(['show','edit','update']);
+
+    //User routes (Admin only)
+    Route::resource('users', UserController::class)->except(['show', 'edit', 'update']);
+    Route::patch('users/{user}/role', [UserController::class, 'updateRole'])->name('users.updateRole');
 });
 
 Route::middleware('auth')->group(function () {
