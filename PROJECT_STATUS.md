@@ -1,249 +1,218 @@
-# MyInventory v2 — Project Status
+# MyInventory v2 - Project Status
 
-**Last updated:** 11 September 2026
-**Location:** `C:\laragon\www\MyInventoryv2\myinventoryv2`
-**Stack:** Laravel 13.17 · PHP 8.4.12 · MySQL · Blade + Alpine.js + Tailwind CSS 3 · Vite 8
-**Local URL:** `http://myinventoryv2.test` (Laragon)
-**Local mail testing:** Mailpit (`http://localhost:8025`) via `MAIL_MAILER=smtp`, `MAIL_HOST=127.0.0.1`, `MAIL_PORT=1025`
+- **Last reviewed:** 14 September 2026
+- **Repository:** `C:\laragon\www\MyInventoryv2\myinventoryv2`
+- **Branch / HEAD:** `main` at `86fc223` (two commits ahead of `origin/main`)
+- **Local URL:** `http://myinventoryv2.test`
+- **Stack:** Laravel 13.30.1, PHP 8.4.12, MySQL, Blade, Alpine.js 3.17, Tailwind CSS 3.4, Vite 8.2
+- **Local mail:** SMTP via Mailpit (`127.0.0.1:1025`; UI at `http://localhost:8025`)
 
-**Context for whoever picks this up (including a fresh AI chat session):** this is a real in-house side project for a cafe, built by a fresh graduate aiming to become a junior developer. The priority is not just "finish the app" — it's understanding *why* each decision is made (architecture, security, database design, testing). Mentoring style: explain reasoning, don't just hand over final code. Guide toward the solution before giving the full implementation. Point out bugs/bad practices/security issues with the "why," not just the "what." Avoid over-engineering — this is a small cafe system, not an enterprise product.
-
----
-
-## 1. Where the project stands
-
-The **data layer, authentication, Category/Item CRUD, stock movement flow, and User Management (roles) are now complete and working**. The application has a working three-tier role hierarchy (superadmin / admin / staff) with policy-based authorization, and an invite-based staff onboarding flow (no plaintext passwords ever sent).
-
-What is **not yet done**: automated tests for anything beyond Breeze's own auth scaffolding, low-stock dashboard alerts, transaction history views, and various polish items listed in Section 3.
-
-Rough completion: **~65%** (foundation, auth, roles, and core CRUD/stock-flow done; dashboard, reporting, and testing still pending).
+This is a small in-house cafe inventory project and a learning project for a junior developer. Prefer clear Laravel conventions, explain architectural and security decisions, and avoid enterprise-scale abstractions unless the business scope requires them.
 
 ---
 
-## 2. What has been done
+## 1. Current state
 
-### Application foundation
-- [x] Laravel 13.17 project running under Laragon
-- [x] `.env` configured — MySQL connection, `myinventory` database
-- [x] Mail switched from `log` driver to **Mailpit** (SMTP, `127.0.0.1:1025`) for realistic local email testing
-- [x] Frontend toolchain: Vite 8 + Tailwind 3 + Alpine.js
-- [x] Git repository initialised
+The application has a working Laravel foundation, Breeze authentication, category and item management, stock movements, and basic role-based user management. The database records stock transactions and keeps each item's current stock synchronized inside a locked database transaction.
 
-### Authentication & user account (Laravel Breeze 2.4, Blade stack)
-- [x] Register, login, logout, password reset, email verification scaffolding
-- [x] Profile page, full UI component library, Breeze's own feature tests
+The project is not production-ready yet. Dashboard/reporting work has not started, inventory features have no dedicated automated coverage, and the user-management implementation has several authorization and onboarding issues listed in Section 4.
 
-### Database schema
-- [x] `categories`, `items`, `inventory_transactions` tables — all migrated
-- [x] `users.role` enum — **now supports `superadmin` / `admin` / `staff`**
-      (see [migration](database/migrations/2026_09_11_034008_add_superadmin_to_users_role_enum.php)
-      — added via a **new** migration using raw `ALTER TABLE`, since the original
-      `users` migration had already run; editing an already-run migration would
-      cause schema drift between environments)
+**Rough completion:** about 65-70%. The core workflow exists, but security hardening, inventory tests, dashboard/history screens, and release cleanup remain.
 
-### Seeders
-- [x] `UserSeeder` — **refactored to use `User::create()` instead of `User::insert()`**,
-      so timestamps, password hashing (via model cast), and `$fillable`/`#[Fillable]`
-      protection are all properly respected. Seeds `Ahmad` (superadmin) and
-      `Shahrul` (staff).
-- [x] `CategorySeeder` — still uses `Category::insert()` (minor inconsistency,
-      see Section 3 cleanups)
+### Verification snapshot
 
-### Inventory models
-- [x] `Category`, `Item`, `InventoryTransaction` — `$fillable`, `casts()`, `HasFactory` all in place
-- [x] `User` model — `#[Fillable]` includes `role`; helper methods added:
-      - `isSuperAdmin()`: strictly `role === 'superadmin'`
-      - `isAdmin()`: `role` is `'admin'` **or** `'superadmin'` (i.e. "admin-level access or higher")
-      - `isStaff()`: strictly `role === 'staff'`
+- `php artisan test --compact` on 14 September: **34 tests passed, 81 assertions**.
+- `npm run build` on 13 September: **passed** with Vite 8.2.2.
+- `php artisan route:list --except-vendor`: **41 application routes**.
+- All six migration files currently present report as run in the local MySQL database.
+- The local `users.role` column is `enum('superadmin', 'admin', 'staff')`.
+- Runtime drivers: MySQL database, database cache/queue/session, and SMTP mail.
 
-### Category & Item CRUD — fully built
-- [x] Controllers, routes, views, Form Requests for both Category and Item
-- [x] `EnsureUserIsAdmin` middleware protecting `categories`/`users` routes
-
-### Stock movement flow — fully built
-- [x] `StockMovementService` — records transactions and keeps `items.current_stock`
-      in sync **inside a DB transaction with row locking** (`lockForUpdate()`),
-      preventing race conditions on concurrent stock updates
-- [x] `InsufficientStockException` — custom exception for stock-out attempts that
-      would push stock negative
-- [x] `TransactionType` enum (`In` / `Out` / `Adjustment`) with `label()` method
-- [x] Views for stock in/out/adjustment forms
-
-### User Management — fully built (this session's main feature)
-- [x] **Three-tier role hierarchy**: `superadmin` (fixed, immutable, exactly one,
-      created only via Tinker/seeder — never through the UI) → `admin` (can manage
-      staff, can promote staff to admin, cannot demote/delete themselves) → `staff`
-      (no admin access)
-- [x] `UserPolicy` — centralizes all "who can do what to whom" logic:
-      - `before()` hook grants superadmin blanket access to every ability
-      - `viewAny`, `create` — admin-level only
-      - `delete` — superadmin can delete anyone except superadmin; admin can only
-        delete staff, never themselves, never other admins
-      - `updateRole` — superadmin's role can never be changed via UI; admin cannot
-        demote themselves
-- [x] `StoreUserRequest`, `UpdateUserRoleRequest` — Form Requests that call the
-      Policy in `authorize()`, keeping validation and authorization out of the controller
-- [x] `UserController` — `index`, `create`, `store`, `updateRole`, `destroy`
-- [x] **Invite-based onboarding (no plaintext passwords ever sent):**
-      - New staff/admin accounts are created with `Hash::make(Str::random(40))` —
-        a password nobody (not even the admin who created it) ever sees
-      - `Password::createToken($user)` generates a reset token using Laravel's
-        existing `password_reset_tokens` infrastructure (same table/mechanism as
-        "Forgot Password")
-      - `WelcomeNewStaffNotification` — a **custom** notification (not the built-in
-        `ResetPassword` one) that reuses the same token/link logic but with
-        onboarding-appropriate wording ("Welcome! Please set your password")
-      - New user clicks the emailed link → lands on the **existing** Breeze
-        `reset-password/{token}` flow → sets their own password → logs in
-- [x] `users/index.blade.php` — table with inline, auto-submitting role dropdown
-      per row (`onchange="this.form.submit()"`), wrapped in a JS `confirm()` dialog;
-      dropdown is hidden for the logged-in admin's own row and for superadmin rows
-      (shown as a static badge instead) — **UI convenience only**, the real
-      enforcement is server-side via `UserPolicy`
-- [x] `users/create.blade.php` — create form with role dropdown (`admin`/`staff`
-      only — `superadmin` is never an option, enforced both by the dropdown and
-      by server-side validation `in:admin,staff`)
-- [x] Navigation — "Users" link added alongside "Categories", gated by `isAdmin()`
-      (which already covers superadmin, since `isAdmin()` means "admin or higher")
-
-### Base Controller fix
-- [x] `app/Http/Controllers/Controller.php` — added `use AuthorizesRequests;`
-      trait. **Note for future reference:** Laravel 11+ skeleton projects ship
-      with an intentionally empty base `Controller` (no auto-included traits,
-      unlike Laravel 8 and earlier). Any use of `$this->authorize(...)` requires
-      this trait to be explicitly added.
+Passing tests do not mean all important behavior is covered. The known gaps below are outside the current suite.
 
 ---
 
-## 3. What has NOT been done
+## 2. Implemented features
 
-### Testing — biggest gap right now
-- [ ] **No automated tests exist yet for Category, Item, StockMovement, or
-      UserManagement features** — only Breeze's own auth tests exist
-      (`tests/Feature/Auth/*`, `tests/Feature/ProfileTest.php`)
-- [ ] Specifically needed for `UserManagement` (good first tests to write solo,
-      without step-by-step guidance, as a self-check exercise):
-  - Staff cannot access `/users` (expect 403)
-  - Admin cannot delete themselves
-  - Admin cannot delete another admin
-  - Admin cannot delete/change role of superadmin
-  - Admin *can* delete/promote staff
-  - Creating a staff member sends a notification (`Notification::fake()`)
-  - New user can complete the password-reset link flow and log in
-- [ ] `tests/Feature/ExampleTest.php` and `tests/Unit/ExampleTest.php` still placeholders
-- [ ] Reference material for learning this: official Laravel docs
-      (`https://laravel.com/docs/testing`, `.../http-tests`), the existing
-      `tests/Feature/Auth/*.php` files in this repo (best reference — same
-      stack/conventions), and Laravel Bootcamp (`https://bootcamp.laravel.com`)
+### Foundation and authentication
 
-### Dashboard & reporting — not started
-- [ ] Dashboard still Breeze's placeholder ("You're logged in!") — no counts,
-      no low-stock alerts, no recent activity
-- [ ] Low-stock detection — `minimum_stock` exists on `items` but nothing
-      compares against it outside the index table badge
-- [ ] Transaction history — no per-item or global movement log view yet
-      (data is being recorded correctly by `StockMovementService`, just not
-      displayed anywhere yet)
+- [x] Laravel 13 application running locally under Laragon.
+- [x] MySQL database configured.
+- [x] Mailpit configured for local email testing.
+- [x] Blade, Alpine.js, Tailwind CSS 3, and Vite frontend toolchain.
+- [x] Laravel Breeze 2.4 authentication: registration, login, logout, password reset, password confirmation, profile management, and email-verification scaffolding.
+- [x] Base controller includes Laravel's `AuthorizesRequests` trait.
 
-### User Management — possible future refinements (not urgent)
-- [ ] No `ItemSeeder`/`UserFactory` usage yet for realistic bulk test data
-- [ ] No rate limiting on the "create staff" action (a rapid double-click could
-      send duplicate invite emails) — not critical for a small cafe, worth knowing
-      for larger systems
-- [ ] No audit log of who created/deleted/changed roles for which user — worth
-      considering if this app ever needs to answer "who did this?"
+### Database and seed data
 
-### Not yet started (confirm scope before building)
-- [ ] Search, filtering, sorting, pagination refinements on listings
-- [ ] Reports / CSV export
-- [ ] Item images or attachments
-- [ ] Barcode/QR scanning
-- [ ] Suppliers, purchase orders, locations/warehouses
-- [ ] Soft deletes on any model
+- [x] `users`, `password_reset_tokens`, `sessions`, `categories`, `items`, and `inventory_transactions` schemas.
+- [x] Three user role values: `superadmin`, `admin`, and `staff`.
+- [x] `UserSeeder` creates one superadmin (`Ahmad`) and one staff user (`Shahrul`) through Eloquent.
+- [x] `CategorySeeder` creates Packaging and Coffee and Beverages categories.
+- [x] Models define relationships, mass-assignable fields, casts, and factories where currently available.
 
-### Minor cleanups
-- [ ] `CategorySeeder` still uses `Category::insert()` — same NULL-timestamp
-      issue that `UserSeeder` used to have; low priority but worth fixing for
-      consistency
-- [ ] Migration filenames omit conventional `create_` prefix — cosmetic only
-- [ ] `README.md` still the stock Laravel readme
-- [ ] `@tailwindcss/vite` v4 in `package.json` but unused (project uses Tailwind 3
-      PostCSS setup) — harmless, can be removed
-- [ ] Some remaining Malay-language comments/strings in files predating this
-      session (e.g. `StoreCategoryRequest` comment) — not urgent, but worth a
-      pass for consistency if the codebase is meant to go on a public portfolio
+### Category management
+
+- [x] Admin-only category listing, create, edit, update, and delete screens.
+- [x] Unique category-code validation.
+- [x] Category list is sorted by name and paginated at 10 rows.
+- [x] Application-level guard prevents deleting a category that still contains items.
+- [ ] The generated `categories.show` route exists, but its controller action is still a stub and there is no show view.
+
+### Item and stock management
+
+- [x] Authenticated users can list, create, edit, update, and delete items.
+- [x] Item list is sorted by name and paginated at 15 rows.
+- [x] Item list displays a low-stock badge when `current_stock <= minimum_stock`.
+- [x] Initial stock is recorded as an inventory transaction rather than directly assigned.
+- [x] Stock in, stock out, and signed adjustment forms.
+- [x] `StockMovementService` uses a database transaction and `lockForUpdate()` to synchronize `items.current_stock` and transaction records.
+- [x] Negative resulting stock is rejected through `InsufficientStockException`.
+- [x] Items with recorded transactions cannot be deleted through the item controller.
+- [ ] The generated `items.show` route exists, but its controller action is still a stub and there is no show view.
+
+### User management
+
+- [x] Admin middleware protects category and user-management routes.
+- [x] `UserPolicy` and Form Request authorization are wired into user-management actions.
+- [x] Admins can list non-superadmin users, create staff/admin users, promote staff, demote other admins, and delete staff.
+- [x] Regular admins are blocked from deleting themselves, deleting another admin, changing their own role, or modifying/deleting a superadmin.
+- [x] User listing is sorted by name and paginated at 10 rows.
+- [x] New users receive `WelcomeNewStaffNotification` with a token for Breeze's existing password-reset flow.
+- [x] The create and role-update requests only accept `admin` or `staff`; `superadmin` is not offered by the UI.
+- [x] Navigation only displays the Users link to admin-level users.
+- [x] The user index intentionally excludes superadmin accounts from its query.
+
+The intended rule is that one fixed superadmin exists and cannot be changed through the UI. That intent is **not fully enforced server-side yet**; see Section 4.
 
 ---
 
-## 4. Suggested next steps, in order
+## 3. Automated test coverage
 
-1. **Write Feature tests for UserManagement solo** (see checklist in Section 3) —
-   this is a deliberate skill-building exercise, not just a task. Attempt it
-   without step-by-step guidance first; bring back what's written for review.
-2. Build the **dashboard** with real figures (item count, low-stock count,
-   recent transactions) — good next feature since all the underlying data
-   already exists from Category/Item/StockMovement work.
-3. Build a **transaction history** listing (per-item and/or global) — the
-   `InventoryTransaction` model and data already exist; this is primarily a
-   read/display exercise.
-4. Once dashboard + history exist, revisit **UserManagement tests** written in
-   step 1 and add a few more scenarios if gaps were found.
-5. Minor cleanups from Section 3 (seeder consistency, language consistency) —
-   good "housekeeping" tasks to practice discipline, not urgent.
-6. Only after the above: consider search/filter/pagination polish, exports,
-   or other "not yet started" items — confirm actual business need before
-   building, to avoid over-engineering a small cafe system.
+### Covered and passing
 
----
+- [x] Breeze authentication, password, verification, and profile tests.
+- [x] Basic home-page and unit placeholders.
+- [x] Nine committed user-management feature tests cover:
+  - staff cannot open user management;
+  - admin cannot delete self, another admin, or a superadmin;
+  - admin can delete staff;
+  - admin can promote staff;
+  - admin cannot change their own role or a superadmin's role;
+  - creating staff dispatches the welcome notification.
 
-## 5. Key design decisions made this session (for context in a new chat)
+### Missing or incomplete coverage
 
-- **Superadmin is fixed and immutable**: exactly one, created only via
-  Tinker/seeder, never selectable in any UI dropdown, and protected at both
-  the `UserPolicy` and Form Request validation layers. Deliberately avoided
-  building "ownership transfer" UI (YAGNI) — if ever needed, do it manually.
-- **Staff onboarding never sends a real password by email.** New accounts get
-  a random, unusable password (`Str::random(40)`, hashed, never exposed).
-  Onboarding reuses Laravel's existing password-reset token infrastructure
-  (`password_reset_tokens` table, `Password::createToken()`,
-  `reset-password/{token}` route) with a custom-worded `Notification` class —
-  chosen specifically to avoid rebuilding proven, already-tested infrastructure.
-- **Authorization logic lives in `UserPolicy`, not scattered in controllers/views.**
-  Controllers stay thin because Form Requests call the Policy in `authorize()`.
-  Blade views additionally use `@can(...)` to hide UI elements the user isn't
-  allowed to use — but this is UX polish only; the server-side Policy is the
-  actual security boundary.
-- **`isAdmin()` deliberately means "admin-level access or higher"** (includes
-  superadmin), while `isSuperAdmin()` is the strict/exclusive check. This
-  caused one moment of confusion this session (navigation link visibility) —
-  worth remembering when reading/writing role checks elsewhere in the app.
+- [ ] No dedicated Category feature tests.
+- [ ] No dedicated Item feature tests.
+- [ ] No `StockMovementService` or stock-movement endpoint tests, including insufficient stock and adjustment cases.
+- [ ] No tests for completing the invited-user password setup and then logging in.
+- [ ] No tests for invalid user-creation or role-update payloads.
+- [ ] No complete policy matrix, especially superadmin acting on self or another superadmin.
+- [ ] The welcome-notification test does not assert the response, created database record, generated password safety, or notification URL/token behavior.
+- [ ] `tests/Feature/ExampleTest.php` and `tests/Unit/ExampleTest.php` remain placeholders.
 
 ---
 
-## 6. Handy commands
+## 4. Known issues and risks
+
+### High priority: user onboarding and authorization
+
+- [ ] **The generated password is not random as intended.** `StoreUserRequest` does not accept a `password`, but `UserController::store()` calls `Hash::make($request->password)`. The missing value is therefore hashed instead of generating a secret such as `Str::random(40)`. The invite test currently misses this defect.
+- [ ] **Superadmin immutability can be bypassed with a direct request.** `UserPolicy::before()` returns `true` for every superadmin ability before `delete()` or `updateRole()` can reject a superadmin target. A superadmin can therefore send a direct route request to demote or delete the superadmin account even though the user is hidden from the listing.
+- [ ] **Profile self-deletion bypasses `UserPolicy`.** Breeze's profile delete action allows any authenticated account, including the superadmin, to delete itself after password confirmation.
+- [ ] **"Exactly one superadmin" is an application convention, not a database invariant.** The seeder creates one, but the schema does not enforce cardinality.
+- [ ] **Public self-registration is still enabled.** `/register` creates ordinary users outside the invite flow. Confirm whether this is intended for an internal cafe application; disable it if onboarding must be invite-only.
+- [ ] **Email verification is scaffolded but not enforced.** `App\Models\User` does not implement Laravel's `MustVerifyEmail` contract, so the `verified` middleware does not block unverified users and registration does not send the framework verification notification.
+
+### High priority: data and migration safety
+
+- [ ] **Deleting a user cascades to their inventory transactions.** The `inventory_transactions.user_id` foreign key uses `cascadeOnDelete()`, so deleting a staff account also removes their stock-movement history. Consider retaining users, soft-deleting them, or using a nullable/restricted foreign key before transaction history becomes an audit requirement.
+- [ ] **Migration history was rewritten after the earlier migration was committed.** Commit `8ed2048` moved `superadmin` into the original users migration and removed `2026_09_11_034008_add_superadmin_to_users_role_enum.php`. Fresh databases and the current local schema work, but environments that already ran the earlier committed migration can have different migration history. Confirm the strategy before pushing or deploying the two local commits.
+
+### Functional gaps
+
+- [ ] Dashboard remains Breeze's `You're logged in!` placeholder.
+- [ ] No dashboard totals, low-stock alert panel, or recent activity.
+- [ ] Low stock is only indicated on the item listing; there is no consolidated alert workflow.
+- [ ] No global or per-item transaction history screen, although transactions are recorded.
+- [ ] No search or filtering. Listings have fixed name sorting and basic pagination, but no user-selectable sorting.
+- [ ] No reports or CSV export.
+- [ ] No item images, barcode/QR scanning, suppliers, purchase orders, or multiple locations/warehouses.
+- [ ] No soft deletes.
+
+### Cleanup and maintainability
+
+- [ ] `CategorySeeder` uses `insert()`, so timestamps are not populated and Eloquent model behavior is bypassed.
+- [ ] `UserController` contains stale imports and inconsistent formatting; several controllers/models also lack explicit return types.
+- [ ] Some Malay comments remain in older files.
+- [ ] Resource routes register unused `show` endpoints for Category and Item.
+- [ ] `README.md` is still the stock Laravel readme.
+- [ ] `APP_NAME` is still `Laravel` instead of the product name.
+- [ ] `@tailwindcss/vite` 4.3 is installed but unused because the project builds Tailwind 3 through PostCSS.
+- [ ] No `ItemSeeder`; the existing `UserFactory` has no named role states.
+- [ ] No rate limit or duplicate-submission protection on user creation/invite emails.
+
+---
+
+## 5. Recommended next steps
+
+1. Fix invite password generation and add a full create -> notification -> set password -> login test.
+2. Correct superadmin authorization, protect profile deletion, and add a policy permission matrix.
+3. Decide whether public registration should remain enabled.
+4. Confirm the migration-history strategy before pushing or deploying the two local commits.
+5. Decide how user deletion should preserve inventory transaction history.
+6. Add focused Category, Item, and Stock Movement feature tests.
+7. Build a useful dashboard with item count, low-stock count, and recent transactions.
+8. Add global and per-item transaction history views.
+9. Complete the cleanup items before portfolio or production use.
+
+---
+
+## 6. Current design decisions
+
+- Stock changes go through `StockMovementService`; item editing does not directly change `current_stock`.
+- Inventory updates and transaction creation are atomic and lock the item row to prevent concurrent lost updates.
+- `TransactionType` is a PHP enum with `In`, `Out`, and `Adjustment` cases.
+- `isAdmin()` means admin-level access or higher and therefore includes superadmin; `isSuperAdmin()` and `isStaff()` are strict checks.
+- User-management authorization is intended to live in `UserPolicy` and Form Requests, with Blade checks used only for presentation.
+- User invitations reuse Laravel's password-reset token infrastructure and a custom welcome notification.
+- Superadmin is omitted from the user-management listing and cannot be selected as a role in normal forms.
+
+---
+
+## 7. Repository state
+
+- The working tree was clean before this documentation edit.
+- The only expected uncommitted change from this update is `PROJECT_STATUS.md`.
+- Local `main` is two commits ahead of `origin/main`:
+  - `8ed2048` - migration rewrite for the superadmin role;
+  - `86fc223` - committed user-management feature tests.
+
+---
+
+## 8. Useful commands
 
 ```bash
-composer setup            # install deps, generate key, migrate, build assets
-composer dev              # serve + queue worker + vite, all at once
-composer test             # run the test suite
-php artisan migrate
-php artisan migrate:fresh --seed   # rebuild schema and reseed
+composer setup
+composer dev
+composer test
+php artisan test --compact
+php artisan route:list --except-vendor
 php artisan migrate:status
-vendor/bin/pint           # format code
+npm run build
+vendor/bin/pint --format agent
 ```
 
-**Caution:** `migrate:fresh`/`migrate:refresh` drop all tables and rebuild from
-scratch — this project's data was accidentally lost once this session from an
-AI coding tool running such a command unprompted. Always confirm before running
-destructive migration commands, and disable auto-run for destructive commands
-in any AI coding tool's settings.
+`migrate:fresh` and `migrate:refresh` drop data. Do not run either against a database with data that must be kept.
 
-## 7. Seeded login credentials
+---
 
-| Email            | Password   | Role       |
-| ---------------- | ---------- | ---------- |
+## 9. Seeded local credentials
+
+| Email | Password | Role |
+| --- | --- | --- |
 | `admin@test.com` | `admin123` | superadmin |
-| `user@test.com`  | `user123`  | staff      |
+| `user@test.com` | `user123` | staff |
 
-(No seeded `admin`-role account exists by default — create one manually via
-Tinker or the UserManagement UI if needed for testing role-specific behavior.)
+No admin-role account is seeded by default.
