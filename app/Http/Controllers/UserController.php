@@ -6,8 +6,6 @@ use App\Http\Requests\User\StoreUserRequest;
 use App\Http\Requests\User\UpdateUserRoleRequest;
 use App\Models\User;
 use App\Notifications\WelcomeNewStaffNotification;
-use Illuminate\Auth\Events\Registered;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
 
@@ -46,7 +44,7 @@ class UserController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'role' => $request->role,
-            'password' => Hash::make($request->password),
+            'password' => Str::random(40),
         ]);
 
         $token = Password::createToken($user);
@@ -79,11 +77,11 @@ class UserController extends Controller
      */
     public function updateRole(UpdateUserRoleRequest $request, User $user)
     {
-        $user->update(['role'=>$request->role]);
+        $user->update(['role' => $request->role]);
 
         return redirect()
             ->route('users.index')
-            ->with('status', "{$user->name}'s role successfully updated to " . ucfirst($user->role) .".");
+            ->with('status', "{$user->name}'s role successfully updated to ".ucfirst($user->role).'.');
     }
 
     /**
