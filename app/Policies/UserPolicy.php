@@ -6,19 +6,6 @@ use App\Models\User;
 
 class UserPolicy
 {
-    /**
-     * Superadmin can do anything — this shortcut runs BEFORE
-     * any other method in this policy (Laravel's "before" hook).
-     */
-    public function before(User $actor, string $ability): ?bool
-    {
-        if ($actor->isSuperAdmin()) {
-            return true;
-        }
-
-        return null; // fall through to the specific method below
-    }
-
     public function viewAny(User $actor): bool
     {
         return $actor->isAdmin();
@@ -32,28 +19,33 @@ class UserPolicy
     public function delete(User $actor, User $target): bool
     {
         if ($target->isSuperAdmin()) {
-            return false; // superadmin can never be deleted
+            return false;
         }
 
         if ($actor->id === $target->id) {
-            return false; // prevent self-deletion
+            return false;
         }
 
         if ($actor->isSuperAdmin()) {
-            return true; // already handled by before(), explicit for clarity
+            return true;
         }
 
-        return $target->isStaff(); // regular admin can only delete staff
+        return $actor->isAdmin() && $target->isStaff();
+    }
+
+    public function deleteOwnAccount(User $actor, User $target): bool
+    {
+        return $actor->id === $target->id && ! $target->isSuperAdmin();
     }
 
     public function updateRole(User $actor, User $target): bool
     {
         if ($target->isSuperAdmin()) {
-            return false; // superadmin role is immutable via UI
+            return false;
         }
 
-        if ($actor->id === $target->id && !$actor->isSuperAdmin()) {
-            return false; // admin can't demote themselves
+        if ($actor->id === $target->id) {
+            return false;
         }
 
         return $actor->isAdmin();

@@ -110,6 +110,52 @@ class UserTest extends TestCase
         $this->assertDatabaseHas('users', ['id' => $admin->id, 'role' => 'admin']);
     }
 
+    public function test_superadmin_cannot_delete_own_account_through_user_management(): void
+    {
+        $superadmin = User::factory()->create(['role' => 'superadmin']);
+
+        $response = $this->actingAs($superadmin)->delete("/users/{$superadmin->id}");
+
+        $response->assertForbidden();
+        $this->assertDatabaseHas('users', ['id' => $superadmin->id, 'role' => 'superadmin']);
+    }
+
+    public function test_superadmin_cannot_update_own_role(): void
+    {
+        $superadmin = User::factory()->create(['role' => 'superadmin']);
+
+        $response = $this->actingAs($superadmin)->patch("/users/{$superadmin->id}/role", [
+            'role' => 'staff',
+        ]);
+
+        $response->assertForbidden();
+        $this->assertDatabaseHas('users', ['id' => $superadmin->id, 'role' => 'superadmin']);
+    }
+
+    public function test_superadmin_can_update_another_users_role(): void
+    {
+        $superadmin = User::factory()->create(['role' => 'superadmin']);
+        $admin = User::factory()->create(['role' => 'admin']);
+
+        $response = $this->actingAs($superadmin)->patch("/users/{$admin->id}/role", [
+            'role' => 'staff',
+        ]);
+
+        $response->assertRedirect('/users');
+        $this->assertDatabaseHas('users', ['id' => $admin->id, 'role' => 'staff']);
+    }
+
+    public function test_superadmin_can_delete_another_admin(): void
+    {
+        $superadmin = User::factory()->create(['role' => 'superadmin']);
+        $admin = User::factory()->create(['role' => 'admin']);
+
+        $response = $this->actingAs($superadmin)->delete("/users/{$admin->id}");
+
+        $response->assertRedirect('/users');
+        $this->assertDatabaseMissing('users', ['id' => $admin->id]);
+    }
+
     public function test_admin_can_create_staff_who_sets_password_and_logs_in(): void
     {
         Notification::fake();

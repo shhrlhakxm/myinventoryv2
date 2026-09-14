@@ -96,4 +96,22 @@ class ProfileTest extends TestCase
 
         $this->assertNotNull($user->fresh());
     }
+
+    public function test_superadmin_cannot_delete_their_account(): void
+    {
+        $superadmin = User::factory()->create(['role' => 'superadmin']);
+
+        $this->actingAs($superadmin)
+            ->get('/profile')
+            ->assertOk()
+            ->assertDontSeeText('Delete Account');
+
+        $response = $this->delete('/profile', [
+            'password' => 'password',
+        ]);
+
+        $response->assertForbidden();
+        $this->assertAuthenticatedAs($superadmin);
+        $this->assertNotNull($superadmin->fresh());
+    }
 }

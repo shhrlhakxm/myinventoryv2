@@ -29,13 +29,13 @@ Advanced business features such as purchase orders, suppliers, barcode scanning,
 
 The application has a working Laravel foundation, Breeze authentication, category and item management, stock movements, and basic role-based user management. The database records stock transactions and keeps each item's current stock synchronized inside a locked database transaction.
 
-The main inventory workflow is working. The project still needs a simple dashboard, transaction-history screens, focused inventory tests, a few clear authorization fixes, and portfolio documentation.
+The main inventory workflow is working. The project still needs a simple dashboard, transaction-history screens, focused inventory tests, one user-deletion safeguard, and portfolio documentation.
 
-**Rough completion for the portfolio scope:** about 70-75%.
+**Rough completion for the portfolio scope:** about 75%.
 
 ### Verification snapshot
 
-- `php artisan test --compact` on 14 September: **34 tests passed, 99 assertions**.
+- `php artisan test --compact` on 14 September: **39 tests passed, 116 assertions**.
 - `npm run build` on 13 September: **passed** with Vite 8.2.2.
 - `php artisan route:list --except-vendor`: **41 application routes**.
 - All six migration files currently present report as run in the local MySQL database.
@@ -98,7 +98,7 @@ Passing tests do not mean all important behavior is covered. The known gaps belo
 - [x] Navigation only displays the Users link to admin-level users.
 - [x] The user index intentionally excludes superadmin accounts from its query.
 
-The intended rule is that one fixed superadmin exists and cannot be changed through the UI. That intent is **not fully enforced server-side yet**; see Section 4.
+The fixed superadmin cannot be deleted or assigned a different role through user management or its own profile page. These restrictions are enforced server-side and covered by feature tests.
 
 ---
 
@@ -108,13 +108,16 @@ The intended rule is that one fixed superadmin exists and cannot be changed thro
 
 - [x] Breeze authentication, password, verification, and profile tests.
 - [x] Basic home-page and unit placeholders.
-- [x] Nine user-management feature tests cover:
+- [x] Thirteen user-management feature tests cover:
   - staff cannot open user management;
   - admin cannot delete self, another admin, or a superadmin;
   - admin can delete staff;
   - admin can promote staff;
   - admin cannot change their own role or a superadmin's role;
+  - superadmin cannot delete or change its own protected account;
+  - superadmin can update or delete other users;
   - the complete create -> notification -> set password -> login flow, including protection against an empty initial password.
+- [x] Profile tests confirm that a normal user can delete their account while the superadmin cannot.
 
 ### Missing or incomplete coverage
 
@@ -122,7 +125,6 @@ The intended rule is that one fixed superadmin exists and cannot be changed thro
 - [ ] No dedicated Item feature tests.
 - [ ] No `StockMovementService` or stock-movement endpoint tests, including insufficient stock and adjustment cases.
 - [ ] No tests for invalid user-creation or role-update payloads.
-- [ ] No complete policy matrix, especially superadmin acting on self or another superadmin.
 - [ ] `tests/Feature/ExampleTest.php` and `tests/Unit/ExampleTest.php` remain placeholders.
 
 ---
@@ -131,8 +133,8 @@ The intended rule is that one fixed superadmin exists and cannot be changed thro
 
 ### Required for a clear portfolio demonstration
 
-- [ ] Fix the direct-request bug that allows the superadmin account to be deleted or demoted.
-- [ ] Prevent the superadmin from deleting itself through the profile page.
+- [x] Fixed the direct-request bug that allowed the superadmin account to be deleted or demoted.
+- [x] Prevented the superadmin from deleting itself through the profile page.
 - [ ] Prevent deletion of a user who owns inventory transactions so the transaction history is retained. A simple deletion guard is sufficient for this project; account deactivation and soft deletes are not required.
 - [ ] Add focused Category, Item, and Stock Movement feature tests.
 - [ ] Replace the placeholder dashboard with item count, low-stock count, and recent transactions.
@@ -159,13 +161,14 @@ The intended rule is that one fixed superadmin exists and cannot be changed thro
 
 Complete one small milestone at a time:
 
-1. Fix the two superadmin authorization bugs and add a few focused tests for those exact cases.
-2. Add a simple guard that stops a user with inventory transactions from being deleted, with one test.
-3. Add focused tests for the main Category, Item, and Stock Movement workflows. Cover the successful action and the most important failure for each feature.
-4. Build the dashboard with three parts: total items, low-stock items, and five recent transactions.
-5. Build a paginated transaction list, then reuse the same idea for an individual item's history.
-6. Prepare the portfolio presentation: update the application name and README, explain the features and setup steps, and include a few screenshots.
-7. Run the full test suite and frontend build, then verify the application from login through a complete stock movement.
+- [x] Fix the two superadmin authorization bugs and add focused tests for those exact cases.
+
+1. Add a simple guard that stops a user with inventory transactions from being deleted, with one test.
+2. Add focused tests for the main Category, Item, and Stock Movement workflows. Cover the successful action and the most important failure for each feature.
+3. Build the dashboard with three parts: total items, low-stock items, and five recent transactions.
+4. Build a paginated transaction list, then reuse the same idea for an individual item's history.
+5. Prepare the portfolio presentation: update the application name and README, explain the features and setup steps, and include a few screenshots.
+6. Run the full test suite and frontend build, then verify the application from login through a complete stock movement.
 
 ---
 
@@ -184,7 +187,7 @@ Complete one small milestone at a time:
 ## 7. Repository state
 
 - Local `main` matches `origin/main` at `f3b5d94` (`feat(controller): update user controller`).
-- This status document contains the uncommitted portfolio-scope revision.
+- The current uncommitted milestone contains the superadmin authorization fixes, their feature tests, the profile UI update, and this status update.
 
 ---
 
