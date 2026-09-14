@@ -2,7 +2,7 @@
 
 - **Last reviewed:** 14 September 2026
 - **Repository:** `C:\laragon\www\MyInventoryv2\myinventoryv2`
-- **Branch / HEAD:** `main` at `86fc223` (two commits ahead of `origin/main`)
+- **Branch / HEAD:** `main` at `94a7742` (matches `origin/main`)
 - **Local URL:** `http://myinventoryv2.test`
 - **Stack:** Laravel 13.30.1, PHP 8.4.12, MySQL, Blade, Alpine.js 3.17, Tailwind CSS 3.4, Vite 8.2
 - **Local mail:** SMTP via Mailpit (`127.0.0.1:1025`; UI at `http://localhost:8025`)
@@ -15,13 +15,13 @@ This is a small in-house cafe inventory project and a learning project for a jun
 
 The application has a working Laravel foundation, Breeze authentication, category and item management, stock movements, and basic role-based user management. The database records stock transactions and keeps each item's current stock synchronized inside a locked database transaction.
 
-The project is not production-ready yet. Dashboard/reporting work has not started, inventory features have no dedicated automated coverage, and the user-management implementation has several authorization and onboarding issues listed in Section 4.
+The project is not production-ready yet. Dashboard/reporting work has not started, inventory features have no dedicated automated coverage, and the user-management implementation has several authorization and access-lifecycle issues listed in Section 4.
 
 **Rough completion:** about 65-70%. The core workflow exists, but security hardening, inventory tests, dashboard/history screens, and release cleanup remain.
 
 ### Verification snapshot
 
-- `php artisan test --compact` on 14 September: **34 tests passed, 81 assertions**.
+- `php artisan test --compact` on 14 September: **34 tests passed, 99 assertions**.
 - `npm run build` on 13 September: **passed** with Vite 8.2.2.
 - `php artisan route:list --except-vendor`: **41 application routes**.
 - All six migration files currently present report as run in the local MySQL database.
@@ -79,6 +79,7 @@ Passing tests do not mean all important behavior is covered. The known gaps belo
 - [x] Regular admins are blocked from deleting themselves, deleting another admin, changing their own role, or modifying/deleting a superadmin.
 - [x] User listing is sorted by name and paginated at 10 rows.
 - [x] New users receive `WelcomeNewStaffNotification` with a token for Breeze's existing password-reset flow.
+- [x] Invited users receive a random, unknown placeholder password and choose their real password through the reset-token flow.
 - [x] The create and role-update requests only accept `admin` or `staff`; `superadmin` is not offered by the UI.
 - [x] Navigation only displays the Users link to admin-level users.
 - [x] The user index intentionally excludes superadmin accounts from its query.
@@ -93,23 +94,21 @@ The intended rule is that one fixed superadmin exists and cannot be changed thro
 
 - [x] Breeze authentication, password, verification, and profile tests.
 - [x] Basic home-page and unit placeholders.
-- [x] Nine committed user-management feature tests cover:
+- [x] Nine user-management feature tests cover:
   - staff cannot open user management;
   - admin cannot delete self, another admin, or a superadmin;
   - admin can delete staff;
   - admin can promote staff;
   - admin cannot change their own role or a superadmin's role;
-  - creating staff dispatches the welcome notification.
+  - the complete create -> notification -> set password -> login flow, including protection against an empty initial password.
 
 ### Missing or incomplete coverage
 
 - [ ] No dedicated Category feature tests.
 - [ ] No dedicated Item feature tests.
 - [ ] No `StockMovementService` or stock-movement endpoint tests, including insufficient stock and adjustment cases.
-- [ ] No tests for completing the invited-user password setup and then logging in.
 - [ ] No tests for invalid user-creation or role-update payloads.
 - [ ] No complete policy matrix, especially superadmin acting on self or another superadmin.
-- [ ] The welcome-notification test does not assert the response, created database record, generated password safety, or notification URL/token behavior.
 - [ ] `tests/Feature/ExampleTest.php` and `tests/Unit/ExampleTest.php` remain placeholders.
 
 ---
@@ -118,7 +117,6 @@ The intended rule is that one fixed superadmin exists and cannot be changed thro
 
 ### High priority: user onboarding and authorization
 
-- [ ] **The generated password is not random as intended.** `StoreUserRequest` does not accept a `password`, but `UserController::store()` calls `Hash::make($request->password)`. The missing value is therefore hashed instead of generating a secret such as `Str::random(40)`. The invite test currently misses this defect.
 - [ ] **Superadmin immutability can be bypassed with a direct request.** `UserPolicy::before()` returns `true` for every superadmin ability before `delete()` or `updateRole()` can reject a superadmin target. A superadmin can therefore send a direct route request to demote or delete the superadmin account even though the user is hidden from the listing.
 - [ ] **Profile self-deletion bypasses `UserPolicy`.** Breeze's profile delete action allows any authenticated account, including the superadmin, to delete itself after password confirmation.
 - [ ] **"Exactly one superadmin" is an application convention, not a database invariant.** The seeder creates one, but the schema does not enforce cardinality.
@@ -157,15 +155,14 @@ The intended rule is that one fixed superadmin exists and cannot be changed thro
 
 ## 5. Recommended next steps
 
-1. Fix invite password generation and add a full create -> notification -> set password -> login test.
-2. Correct superadmin authorization, protect profile deletion, and add a policy permission matrix.
-3. Decide whether public registration should remain enabled.
-4. Confirm the migration-history strategy before pushing or deploying the two local commits.
-5. Decide how user deletion should preserve inventory transaction history.
-6. Add focused Category, Item, and Stock Movement feature tests.
-7. Build a useful dashboard with item count, low-stock count, and recent transactions.
-8. Add global and per-item transaction history views.
-9. Complete the cleanup items before portfolio or production use.
+1. Correct superadmin authorization, protect profile deletion, and add a policy permission matrix.
+2. Decide whether public registration should remain enabled.
+3. Confirm the migration-history strategy before deploying.
+4. Decide how user deletion should preserve inventory transaction history.
+5. Add focused Category, Item, and Stock Movement feature tests.
+6. Build a useful dashboard with item count, low-stock count, and recent transactions.
+7. Add global and per-item transaction history views.
+8. Complete the cleanup items before portfolio or production use.
 
 ---
 
@@ -183,11 +180,8 @@ The intended rule is that one fixed superadmin exists and cannot be changed thro
 
 ## 7. Repository state
 
-- The working tree was clean before this documentation edit.
-- The only expected uncommitted change from this update is `PROJECT_STATUS.md`.
-- Local `main` is two commits ahead of `origin/main`:
-  - `8ed2048` - migration rewrite for the superadmin role;
-  - `86fc223` - committed user-management feature tests.
+- Local `main` matches `origin/main` at `94a7742` (`chore: configure Laravel Boost and project mentoring rules`).
+- Expected uncommitted changes from the current milestone are `UserController.php`, `UserTest.php`, and this status document.
 
 ---
 
