@@ -3,10 +3,11 @@
 namespace Tests\Feature\User;
 
 use App\Models\User;
-use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
 use App\Notifications\WelcomeNewStaffNotification;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Notification;
+use Tests\TestCase;
 
 class UserTest extends TestCase
 {
@@ -52,7 +53,7 @@ class UserTest extends TestCase
         $response = $this->actingAs($admin)->delete("/users/{$staff->id}");
 
         $response->assertRedirect('/users');
-        $response->assertSessionHas('status', "User has been deleted.");
+        $response->assertSessionHas('status', 'User has been deleted.');
         $this->assertDatabaseMissing('users', ['id' => $staff->id]);
     }
 
@@ -109,23 +110,70 @@ class UserTest extends TestCase
         $this->assertDatabaseHas('users', ['id' => $admin->id, 'role' => 'admin']);
     }
 
-
-
-    public function test_creating_staff_sends_welcome_notification(): void
+    public function test_admin_can_create_staff_who_sets_password_and_logs_in(): void
     {
         Notification::fake();
 
         $admin = User::factory()->create(['role' => 'admin']);
+        $newPassword = 'SecurePassword123!';
 
-        $response = $this->actingAs($admin)->post('/users', [
+        $response = $this->actingAs($admin)->post(route('users.store'), [
             'name' => 'New Staff',
             'email' => 'newstaff@test.com',
             'role' => 'staff',
         ]);
 
-        // Cari user yang baru dicreate
-        $newUser = User::where('email', 'newstaff@test.com')->first();
+        $response
+            ->assertSessionHasNoErrors()
+            ->assertRedirect(route('users.index'));
 
-        Notification::assertSentTo($newUser, WelcomeNewStaffNotification::class);
+        $newUser = User::where('email', 'newstaff@test.com')->sole();
+
+        $this->assertDatabaseHas('users', [
+            'id' => $newUser->id,
+            'name' => 'New Staff',
+            'email' => 'newstaff@test.com',
+            'role' => 'staff',
+        ]);
+        $this->assertFalse(Hash::check('', $newUser->password));
+
+        $invitationToken = null;
+
+        Notification::assertSentTo(
+            $newUser,
+            WelcomeNewStaffNotification::class,
+            function (WelcomeNewStaffNotification $notification, array $channels) use (&$invitationToken): bool {
+                $invitationToken = $notification->token;
+
+                return in_array('mail', $channels, true);
+            }
+        );
+
+        $this->assertNotNull($invitationToken);
+
+        $this->post(route('logout'))->assertRedirect('/');
+        $this->assertGuest();
+
+        $resetResponse = $this->post(route('password.store'), [
+            'token' => $invitationToken,
+            'email' => $newUser->email,
+            'password' => $newPassword,
+            'password_confirmation' => $newPassword,
+        ]);
+
+        $resetResponse
+            ->assertSessionHasNoErrors()
+            ->assertRedirect(route('login'));
+
+        $newUser->refresh();
+        $this->assertTrue(Hash::check($newPassword, $newUser->password));
+
+        $loginResponse = $this->post(route('login'), [
+            'email' => $newUser->email,
+            'password' => $newPassword,
+        ]);
+
+        $loginResponse->assertRedirect(route('dashboard', absolute: false));
+        $this->assertAuthenticatedAs($newUser);
     }
 }
