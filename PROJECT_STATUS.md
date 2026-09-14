@@ -2,12 +2,26 @@
 
 - **Last reviewed:** 14 September 2026
 - **Repository:** `C:\laragon\www\MyInventoryv2\myinventoryv2`
-- **Branch / HEAD:** `main` at `94a7742` (matches `origin/main`)
+- **Branch / HEAD:** `main` at `f3b5d94` (matches `origin/main`)
 - **Local URL:** `http://myinventoryv2.test`
 - **Stack:** Laravel 13.30.1, PHP 8.4.12, MySQL, Blade, Alpine.js 3.17, Tailwind CSS 3.4, Vite 8.2
 - **Local mail:** SMTP via Mailpit (`127.0.0.1:1025`; UI at `http://localhost:8025`)
 
-This is a small in-house cafe inventory project and a learning project for a junior developer. Prefer clear Laravel conventions, explain architectural and security decisions, and avoid enterprise-scale abstractions unless the business scope requires them.
+This is an entry-level Laravel portfolio and learning project for a fresh graduate. Its purpose is to demonstrate Laravel fundamentals to potential employers, not to serve as a production system or a product for clients. Prefer clear framework conventions, readable code, and a small feature set that can be explained confidently in an interview.
+
+## Project objective
+
+Build a simple cafe inventory application that demonstrates:
+
+- Laravel authentication and basic role-based authorization;
+- CRUD operations for users, categories, and items;
+- stock-in, stock-out, and stock-adjustment workflows;
+- Eloquent relationships, validation, database transactions, and pagination;
+- a useful dashboard and inventory transaction history;
+- focused PHPUnit feature tests and clear Git commits;
+- a portfolio README that explains the project and how to run it.
+
+Advanced business features such as purchase orders, suppliers, barcode scanning, multiple warehouses, enterprise audit systems, and production deployment infrastructure are outside the current portfolio scope.
 
 ---
 
@@ -15,9 +29,9 @@ This is a small in-house cafe inventory project and a learning project for a jun
 
 The application has a working Laravel foundation, Breeze authentication, category and item management, stock movements, and basic role-based user management. The database records stock transactions and keeps each item's current stock synchronized inside a locked database transaction.
 
-The project is not production-ready yet. Dashboard/reporting work has not started, inventory features have no dedicated automated coverage, and the user-management implementation has several authorization and access-lifecycle issues listed in Section 4.
+The main inventory workflow is working. The project still needs a simple dashboard, transaction-history screens, focused inventory tests, a few clear authorization fixes, and portfolio documentation.
 
-**Rough completion:** about 65-70%. The core workflow exists, but security hardening, inventory tests, dashboard/history screens, and release cleanup remain.
+**Rough completion for the portfolio scope:** about 70-75%.
 
 ### Verification snapshot
 
@@ -113,56 +127,45 @@ The intended rule is that one fixed superadmin exists and cannot be changed thro
 
 ---
 
-## 4. Known issues and risks
+## 4. Remaining portfolio work
 
-### High priority: user onboarding and authorization
+### Required for a clear portfolio demonstration
 
-- [ ] **Superadmin immutability can be bypassed with a direct request.** `UserPolicy::before()` returns `true` for every superadmin ability before `delete()` or `updateRole()` can reject a superadmin target. A superadmin can therefore send a direct route request to demote or delete the superadmin account even though the user is hidden from the listing.
-- [ ] **Profile self-deletion bypasses `UserPolicy`.** Breeze's profile delete action allows any authenticated account, including the superadmin, to delete itself after password confirmation.
-- [ ] **"Exactly one superadmin" is an application convention, not a database invariant.** The seeder creates one, but the schema does not enforce cardinality.
-- [ ] **Public self-registration is still enabled.** `/register` creates ordinary users outside the invite flow. Confirm whether this is intended for an internal cafe application; disable it if onboarding must be invite-only.
-- [ ] **Email verification is scaffolded but not enforced.** `App\Models\User` does not implement Laravel's `MustVerifyEmail` contract, so the `verified` middleware does not block unverified users and registration does not send the framework verification notification.
+- [ ] Fix the direct-request bug that allows the superadmin account to be deleted or demoted.
+- [ ] Prevent the superadmin from deleting itself through the profile page.
+- [ ] Prevent deletion of a user who owns inventory transactions so the transaction history is retained. A simple deletion guard is sufficient for this project; account deactivation and soft deletes are not required.
+- [ ] Add focused Category, Item, and Stock Movement feature tests.
+- [ ] Replace the placeholder dashboard with item count, low-stock count, and recent transactions.
+- [ ] Add global and per-item transaction-history pages.
+- [ ] Replace the default Laravel README and application name with portfolio-specific information.
 
-### High priority: data and migration safety
+### Simple decisions for this portfolio
 
-- [ ] **Deleting a user cascades to their inventory transactions.** The `inventory_transactions.user_id` foreign key uses `cascadeOnDelete()`, so deleting a staff account also removes their stock-movement history. Consider retaining users, soft-deleting them, or using a nullable/restricted foreign key before transaction history becomes an audit requirement.
-- [ ] **Migration history was rewritten after the earlier migration was committed.** Commit `8ed2048` moved `superadmin` into the original users migration and removed `2026_09_11_034008_add_superadmin_to_users_role_enum.php`. Fresh databases and the current local schema work, but environments that already ran the earlier committed migration can have different migration history. Confirm the strategy before pushing or deploying the two local commits.
+- Public registration can remain enabled because it demonstrates Laravel Breeze and allows a reviewer to create a staff account. Registered users receive the default `staff` role.
+- The current migration history is acceptable while the project is local and has no shared or production database. Confirm that a disposable database can be built from the current migrations and seeders. For any future shared deployment, use new migrations instead of editing migrations that have already run.
+- Email verification may remain as scaffolding and should be described honestly as not enforced.
 
-### Functional gaps
+### Optional future learning
 
-- [ ] Dashboard remains Breeze's `You're logged in!` placeholder.
-- [ ] No dashboard totals, low-stock alert panel, or recent activity.
-- [ ] Low stock is only indicated on the item listing; there is no consolidated alert workflow.
-- [ ] No global or per-item transaction history screen, although transactions are recorded.
-- [ ] No search or filtering. Listings have fixed name sorting and basic pagination, but no user-selectable sorting.
-- [ ] No reports or CSV export.
-- [ ] No item images, barcode/QR scanning, suppliers, purchase orders, or multiple locations/warehouses.
-- [ ] No soft deletes.
-
-### Cleanup and maintainability
-
-- [ ] `CategorySeeder` uses `insert()`, so timestamps are not populated and Eloquent model behavior is bypassed.
-- [ ] `UserController` contains stale imports and inconsistent formatting; several controllers/models also lack explicit return types.
-- [ ] Some Malay comments remain in older files.
-- [ ] Resource routes register unused `show` endpoints for Category and Item.
-- [ ] `README.md` is still the stock Laravel readme.
-- [ ] `APP_NAME` is still `Laravel` instead of the product name.
-- [ ] `@tailwindcss/vite` 4.3 is installed but unused because the project builds Tailwind 3 through PostCSS.
-- [ ] No `ItemSeeder`; the existing `UserFactory` has no named role states.
-- [ ] No rate limit or duplicate-submission protection on user creation/invite emails.
+- Enforce exactly one superadmin at the database or service layer.
+- Add user deactivation or soft deletes.
+- Add search, filtering, CSV export, item images, or barcode scanning.
+- Add suppliers, purchase orders, multiple locations, or advanced reporting.
+- Add production deployment, rate limiting, and more extensive audit controls.
 
 ---
 
 ## 5. Recommended next steps
 
-1. Correct superadmin authorization, protect profile deletion, and add a policy permission matrix.
-2. Decide whether public registration should remain enabled.
-3. Confirm the migration-history strategy before deploying.
-4. Decide how user deletion should preserve inventory transaction history.
-5. Add focused Category, Item, and Stock Movement feature tests.
-6. Build a useful dashboard with item count, low-stock count, and recent transactions.
-7. Add global and per-item transaction history views.
-8. Complete the cleanup items before portfolio or production use.
+Complete one small milestone at a time:
+
+1. Fix the two superadmin authorization bugs and add a few focused tests for those exact cases.
+2. Add a simple guard that stops a user with inventory transactions from being deleted, with one test.
+3. Add focused tests for the main Category, Item, and Stock Movement workflows. Cover the successful action and the most important failure for each feature.
+4. Build the dashboard with three parts: total items, low-stock items, and five recent transactions.
+5. Build a paginated transaction list, then reuse the same idea for an individual item's history.
+6. Prepare the portfolio presentation: update the application name and README, explain the features and setup steps, and include a few screenshots.
+7. Run the full test suite and frontend build, then verify the application from login through a complete stock movement.
 
 ---
 
@@ -180,8 +183,8 @@ The intended rule is that one fixed superadmin exists and cannot be changed thro
 
 ## 7. Repository state
 
-- Local `main` matches `origin/main` at `94a7742` (`chore: configure Laravel Boost and project mentoring rules`).
-- Expected uncommitted changes from the current milestone are `UserController.php`, `UserTest.php`, and this status document.
+- Local `main` matches `origin/main` at `f3b5d94` (`feat(controller): update user controller`).
+- This status document contains the uncommitted portfolio-scope revision.
 
 ---
 
