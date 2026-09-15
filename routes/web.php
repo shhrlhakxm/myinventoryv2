@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\InventoryTransactionController;
 use App\Http\Controllers\ItemController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\StockMovementController;
@@ -40,9 +41,13 @@ Route::middleware('auth')->group(function () {
     Route::get('items/{item}/stock-movements/create/{type}', [StockMovementController::class, 'create'])
         ->whereIn('type', ['in', 'out', 'adjustment'])
         ->name('stock-movements.create');
-
+    // Stock Movement routes
     Route::post('items/{item}/stock-movements', [StockMovementController::class, 'store'])
         ->name('stock-movements.store');
+
+    // Inventory Transaction routes
+    Route::get('inventory-transactions', [InventoryTransactionController::class, 'index'])
+        ->name('inventory-transactions.index');
 });
 
 require __DIR__.'/auth.php';
