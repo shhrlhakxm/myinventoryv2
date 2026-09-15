@@ -19,6 +19,11 @@
                     {{ session('status') }}
                 </div>
             @endif
+            @if (session('error'))
+                <div class="mb-4 p-4 bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 rounded-md">
+                    {{ session('error') }}
+                </div>
+            @endif
 
             <div class="bg-white dark:bg-gray-800 shadow sm:rounded-lg overflow-hidden">
                 <table class="w-full text-sm text-left">
