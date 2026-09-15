@@ -138,8 +138,8 @@ The fixed superadmin cannot be deleted or assigned a different role through user
 - [x] Fixed the direct-request bug that allowed the superadmin account to be deleted or demoted.
 - [x] Prevented the superadmin from deleting itself through the profile page.
 - [x] Prevented deletion of a user who owns inventory transactions so the transaction history is retained.
-- [ ] Add focused Category, Item, and Stock Movement feature tests.
-- [ ] Replace the placeholder dashboard with item count, low-stock count, and recent transactions.
+- [x] Add focused Category, Item, and Stock Movement feature tests.
+- [x] Replace the placeholder dashboard with item count, low-stock count, and recent transactions.
 - [ ] Add global and per-item transaction-history pages.
 - [ ] Replace the default Laravel README and application name with portfolio-specific information.
 
