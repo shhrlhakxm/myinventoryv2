@@ -91,6 +91,12 @@ class UserController extends Controller
     {
         $this->authorize('delete', $user);
 
+        if ($user->inventoryTransactions()->exists()) {
+            return redirect()
+                ->route('users.index')
+                ->with('error', 'Cannot delete a user who has recorded inventory transactions.');
+        }
+
         $user->delete();
 
         return redirect()
