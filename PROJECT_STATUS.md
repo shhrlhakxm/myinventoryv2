@@ -1,8 +1,8 @@
 # MyInventory v2 - Project Status
 
-- **Last reviewed:** 14 September 2026
+- **Last reviewed:** 15 September 2026
 - **Repository:** `C:\laragon\www\MyInventoryv2\myinventoryv2`
-- **Branch / HEAD:** `main` at `f3b5d94` (matches `origin/main`)
+- **Branch / HEAD:** `main` at `960b6d2` (matches `origin/main`)
 - **Local URL:** `http://myinventoryv2.test`
 - **Stack:** Laravel 13.30.1, PHP 8.4.12, MySQL, Blade, Alpine.js 3.17, Tailwind CSS 3.4, Vite 8.2
 - **Local mail:** SMTP via Mailpit (`127.0.0.1:1025`; UI at `http://localhost:8025`)
@@ -29,13 +29,13 @@ Advanced business features such as purchase orders, suppliers, barcode scanning,
 
 The application has a working Laravel foundation, Breeze authentication, category and item management, stock movements, and basic role-based user management. The database records stock transactions and keeps each item's current stock synchronized inside a locked database transaction.
 
-The main inventory workflow is working. The project still needs a simple dashboard, transaction-history screens, focused inventory tests, one user-deletion safeguard, and portfolio documentation.
+The main inventory workflow is working. The project still needs a simple dashboard, transaction-history screens, focused inventory tests, and portfolio documentation.
 
 **Rough completion for the portfolio scope:** about 75%.
 
 ### Verification snapshot
 
-- `php artisan test --compact` on 14 September: **39 tests passed, 116 assertions**.
+- `php artisan test --compact` on 15 September: **40 tests passed, 121 assertions** in 2.79 seconds.
 - `npm run build` on 13 September: **passed** with Vite 8.2.2.
 - `php artisan route:list --except-vendor`: **41 application routes**.
 - All six migration files currently present report as run in the local MySQL database.
@@ -97,6 +97,7 @@ Passing tests do not mean all important behavior is covered. The known gaps belo
 - [x] The create and role-update requests only accept `admin` or `staff`; `superadmin` is not offered by the UI.
 - [x] Navigation only displays the Users link to admin-level users.
 - [x] The user index intentionally excludes superadmin accounts from its query.
+- [x] Users with recorded inventory transactions cannot be deleted, preserving their transaction history.
 
 The fixed superadmin cannot be deleted or assigned a different role through user management or its own profile page. These restrictions are enforced server-side and covered by feature tests.
 
@@ -108,7 +109,7 @@ The fixed superadmin cannot be deleted or assigned a different role through user
 
 - [x] Breeze authentication, password, verification, and profile tests.
 - [x] Basic home-page and unit placeholders.
-- [x] Thirteen user-management feature tests cover:
+- [x] Fourteen user-management feature tests cover:
   - staff cannot open user management;
   - admin cannot delete self, another admin, or a superadmin;
   - admin can delete staff;
@@ -116,6 +117,7 @@ The fixed superadmin cannot be deleted or assigned a different role through user
   - admin cannot change their own role or a superadmin's role;
   - superadmin cannot delete or change its own protected account;
   - superadmin can update or delete other users;
+  - users with inventory transactions cannot be deleted;
   - the complete create -> notification -> set password -> login flow, including protection against an empty initial password.
 - [x] Profile tests confirm that a normal user can delete their account while the superadmin cannot.
 
@@ -135,7 +137,7 @@ The fixed superadmin cannot be deleted or assigned a different role through user
 
 - [x] Fixed the direct-request bug that allowed the superadmin account to be deleted or demoted.
 - [x] Prevented the superadmin from deleting itself through the profile page.
-- [ ] Prevent deletion of a user who owns inventory transactions so the transaction history is retained. A simple deletion guard is sufficient for this project; account deactivation and soft deletes are not required.
+- [x] Prevented deletion of a user who owns inventory transactions so the transaction history is retained.
 - [ ] Add focused Category, Item, and Stock Movement feature tests.
 - [ ] Replace the placeholder dashboard with item count, low-stock count, and recent transactions.
 - [ ] Add global and per-item transaction-history pages.
@@ -162,13 +164,13 @@ The fixed superadmin cannot be deleted or assigned a different role through user
 Complete one small milestone at a time:
 
 - [x] Fix the two superadmin authorization bugs and add focused tests for those exact cases.
+- [x] Add a simple guard that stops a user with inventory transactions from being deleted, with one test.
 
-1. Add a simple guard that stops a user with inventory transactions from being deleted, with one test.
-2. Add focused tests for the main Category, Item, and Stock Movement workflows. Cover the successful action and the most important failure for each feature.
-3. Build the dashboard with three parts: total items, low-stock items, and five recent transactions.
-4. Build a paginated transaction list, then reuse the same idea for an individual item's history.
-5. Prepare the portfolio presentation: update the application name and README, explain the features and setup steps, and include a few screenshots.
-6. Run the full test suite and frontend build, then verify the application from login through a complete stock movement.
+1. Add focused tests for the main Category, Item, and Stock Movement workflows. Cover the successful action and the most important failure for each feature.
+2. Build the dashboard with three parts: total items, low-stock items, and five recent transactions.
+3. Build a paginated transaction list, then reuse the same idea for an individual item's history.
+4. Prepare the portfolio presentation: update the application name and README, explain the features and setup steps, and include a few screenshots.
+5. Run the full test suite and frontend build, then verify the application from login through a complete stock movement.
 
 ---
 
@@ -186,8 +188,8 @@ Complete one small milestone at a time:
 
 ## 7. Repository state
 
-- Local `main` matches `origin/main` at `f3b5d94` (`feat(controller): update user controller`).
-- The current uncommitted milestone contains the superadmin authorization fixes, their feature tests, the profile UI update, and this status update.
+- Local `main` matches `origin/main` at `960b6d2` (`fix(auth): protect superadmin account`).
+- The current uncommitted milestone contains the user deletion guard, its error feedback and feature test, and this status update.
 
 ---
 
