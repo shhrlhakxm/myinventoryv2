@@ -2,6 +2,8 @@
 
 namespace Tests\Feature\User;
 
+use App\Models\Category;
+use App\Models\Item;
 use App\Models\User;
 use App\Notifications\WelcomeNewStaffNotification;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -221,5 +223,46 @@ class UserTest extends TestCase
 
         $loginResponse->assertRedirect(route('dashboard', absolute: false));
         $this->assertAuthenticatedAs($newUser);
+    }
+
+    public function test_admin_cannot_delete_staff_with_inventory_transactions(): void
+    {
+        $admin = User::factory()->create(['role' => 'admin']);
+        $staff = User::factory()->create(['role' => 'staff']);
+        $category = Category::create(
+            [
+                'name' => 'Test Category',
+                'code' => 'TEST-CAT',
+                'description' => 'A category for testing purposes.',
+            ]
+        );
+        $item = Item::create(
+            [
+                'category_id' => $category->id,
+                'name' => 'Test Item',
+                'description' => 'A item for testing purposes.',
+                'sku' => 'TEST-001',
+                'price' => 10.99,
+            ]
+        );
+
+        $staff->inventoryTransactions()->create([
+            'item_id' => $item->id,
+            'type' => 'in',
+            'quantity' => 10,
+            'notes' => 'Initial stock',
+        ]);
+
+        $response = $this->actingAs($admin)->delete("/users/{$staff->id}");
+
+        $response->assertRedirect('/users');
+        $response->assertSessionHas('error', 'Cannot delete a user who has recorded inventory transactions.');
+        $this->assertDatabaseHas('users', ['id' => $staff->id]);
+        $this->assertDatabaseHas('inventory_transactions', [
+            'user_id' => $staff->id,
+            'item_id' => $item->id,
+            'type' => 'in',
+            'quantity' => 10,
+        ]);
     }
 }
