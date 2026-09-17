@@ -1,11 +1,11 @@
 <x-app-layout>
     <x-slot name="header">
         <div class="flex justify-between items-center">
-            <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
+            <h2 class="font-semibold text-xl text-slate-800 leading-tight">
                 User Management
             </h2>
             <a href="{{ route('users.create') }}"
-                class="inline-flex items-center px-4 py-2 bg-gray-800 dark:bg-gray-200 text-white dark:text-gray-800 text-xs font-semibold uppercase rounded-md">
+                class="inline-flex items-center rounded-lg bg-indigo-600 px-4 py-2 text-xs font-semibold uppercase tracking-wider text-white shadow-sm transition hover:bg-indigo-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2">
                 + Add Staff
             </a>
         </div>
@@ -15,19 +15,19 @@
         <div class="max-w-5xl mx-auto sm:px-6 lg:px-8">
 
             @if (session('status'))
-                <div class="mb-4 p-4 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 rounded-md">
+                <div class="mb-4 rounded-lg border border-emerald-200 bg-emerald-50 p-4 text-emerald-800">
                     {{ session('status') }}
                 </div>
             @endif
             @if (session('error'))
-                <div class="mb-4 p-4 bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 rounded-md">
+                <div class="mb-4 rounded-lg border border-rose-200 bg-rose-50 p-4 text-rose-800">
                     {{ session('error') }}
                 </div>
             @endif
 
-            <div class="bg-white dark:bg-gray-800 shadow sm:rounded-lg overflow-hidden">
+            <div class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
                 <table class="w-full text-sm text-left">
-                    <thead class="bg-gray-50 dark:bg-gray-900 text-gray-600 dark:text-gray-400 uppercase text-xs">
+                    <thead class="bg-slate-50 text-slate-600 uppercase text-xs">
                         <tr>
                             <th class="px-6 py-3">Name</th>
                             <th class="px-6 py-3">Email</th>
@@ -37,21 +37,21 @@
                     </thead>
                     <tbody>
                         @forelse ($users as $user)
-                            <tr class="border-t dark:border-gray-700">
-                                <td class="px-6 py-4 text-gray-900 dark:text-gray-100">{{ $user->name }}</td>
-                                <td class="px-6 py-4 text-gray-900 dark:text-gray-100">{{ $user->email }}</td>
+                            <tr class="border-t border-slate-200 transition-colors hover:bg-slate-50">
+                                <td class="px-6 py-4 text-slate-900 ">{{ $user->name }}</td>
+                                <td class="px-6 py-4 text-slate-900 ">{{ $user->email }}</td>
                                 <td class="px-6 py-4">
                                     @if ($user->id === auth()->id())
                                         <span
                                             class="px-2 py-1 text-xs font-semibold rounded-full
             {{ $user->role === 'admin'
-                ? 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200'
-                : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200' }}">
+                ? 'bg-indigo-100 text-indigo-800 '
+                : 'bg-slate-100 text-slate-800 ' }}">
                                             {{ ucfirst($user->role) }}
                                         </span>
                                     @elseif ($user->isSuperAdmin())
                                         <span
-                                            class="px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">
+                                            class="px-2 py-1 text-xs font-semibold rounded-full bg-amber-100 text-amber-800 ">
                                             Superadmin
                                         </span>
                                     @else
@@ -60,7 +60,7 @@
                                             @csrf
                                             @method('PATCH')
                                             <select name="role" onchange="this.form.submit()"
-                                                class="text-xs border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 rounded-md focus:border-indigo-500 focus:ring-indigo-500">
+                                                class="text-xs border-slate-300 rounded-md focus:border-indigo-500 focus:ring-indigo-500">
                                                 <option value="staff" {{ $user->role === 'staff' ? 'selected' : '' }}>
                                                     Staff</option>
                                                 <option value="admin" {{ $user->role === 'admin' ? 'selected' : '' }}>
@@ -78,7 +78,7 @@
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit"
-                                                class="text-red-600 dark:text-red-400 hover:underline text-xs">
+                                                class="text-rose-600 hover:underline text-xs">
                                                 Delete
                                             </button>
                                         </form>
@@ -87,7 +87,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="4" class="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
+                                <td colspan="4" class="px-6 py-8 text-center text-slate-500 ">
                                     No staff yet.
                                 </td>
                             </tr>

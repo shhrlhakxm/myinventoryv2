@@ -1,6 +1,6 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
+        <h2 class="font-semibold text-xl text-slate-800 leading-tight">
             {{ __('Dashboard') }}
         </h2>
     </x-slot>
@@ -8,19 +8,19 @@
     <div class="py-8 sm:py-12">
         <div class="mx-auto flex max-w-7xl flex-col gap-6 px-4 sm:px-6 lg:px-8">
             <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
-                <div class="overflow-hidden rounded-lg bg-white shadow-sm dark:bg-gray-800">
+                <div class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm ">
                     <div class="flex items-center justify-between gap-4 p-6">
                         <div class="flex flex-col gap-2">
-                            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">
+                            <p class="text-sm font-medium text-slate-500 ">
                                 Total Items
                             </p>
 
-                            <p class="text-3xl font-semibold text-gray-900 dark:text-gray-100">
+                            <p class="text-3xl font-semibold text-slate-900 ">
                                 {{ number_format($totalItems) }}
                             </p>
                         </div>
 
-                        <div class="rounded-full bg-indigo-100 p-3 text-indigo-600 dark:bg-indigo-900 dark:text-indigo-300">
+                        <div class="rounded-full bg-indigo-100 p-3 text-indigo-600 ">
                             <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                 stroke-width="2" aria-hidden="true">
                                 <path stroke-linecap="round" stroke-linejoin="round"
@@ -29,19 +29,19 @@
                         </div>
                     </div>
                 </div>
-                <div class="overflow-hidden rounded-lg bg-white shadow-sm dark:bg-gray-800">
+                <div class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm ">
                     <div class="flex items-center justify-between gap-4 p-6">
                         <div class="flex flex-col gap-2">
-                            <p class="text-sm font-medium text-gray-500 dark:text-gray-400">
+                            <p class="text-sm font-medium text-slate-500 ">
                                 Low Stock Items
                             </p>
 
-                            <p class="text-3xl font-semibold text-gray-900 dark:text-gray-100">
+                            <p class="text-3xl font-semibold text-slate-900 ">
                                 {{ number_format($lowStockItems) }}
                             </p>
                         </div>
 
-                        <div class="rounded-full bg-amber-100 p-3 text-amber-600 dark:bg-amber-900 dark:text-amber-300">
+                        <div class="rounded-full bg-amber-100 p-3 text-amber-600 ">
                             <svg class="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                 stroke-width="2" aria-hidden="true">
                                 <path stroke-linecap="round" stroke-linejoin="round"
@@ -52,21 +52,21 @@
                 </div>
             </div>
 
-            <section class="overflow-hidden rounded-lg bg-white shadow-sm dark:bg-gray-800"
+            <section class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm "
                 aria-labelledby="recent-stock-movements-heading">
-                <div class="flex flex-col gap-1 border-b border-gray-200 px-6 py-5 dark:border-gray-700">
+                <div class="flex flex-col gap-1 border-b border-slate-200 px-6 py-5 ">
                     <h3 id="recent-stock-movements-heading"
-                        class="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                        class="text-lg font-semibold text-slate-900 ">
                         Recent Stock Movements
                     </h3>
-                    <p class="text-sm text-gray-500 dark:text-gray-400">
+                    <p class="text-sm text-slate-500 ">
                         The five most recently recorded inventory updates.
                     </p>
                 </div>
 
                 <div class="overflow-x-auto">
                     <table class="min-w-full text-left text-sm">
-                        <thead class="bg-gray-50 text-xs uppercase text-gray-600 dark:bg-gray-900 dark:text-gray-400">
+                        <thead class="bg-slate-50 text-xs uppercase text-slate-600 ">
                             <tr>
                                 <th scope="col" class="whitespace-nowrap px-6 py-3">Date</th>
                                 <th scope="col" class="whitespace-nowrap px-6 py-3">Item</th>
@@ -76,34 +76,34 @@
                                 <th scope="col" class="px-6 py-3">Notes</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+                        <tbody class="divide-y divide-slate-200 ">
                             @forelse ($recentTransactions as $recentTransaction)
-                                <tr class="transition-colors hover:bg-gray-50 dark:hover:bg-gray-700/40">
-                                    <td class="whitespace-nowrap px-6 py-4 text-gray-500 dark:text-gray-400">
+                                <tr class="transition-colors hover:bg-slate-50 ">
+                                    <td class="whitespace-nowrap px-6 py-4 text-slate-500 ">
                                         {{ $recentTransaction->created_at->format('d M Y, H:i') }}
                                     </td>
-                                    <td class="whitespace-nowrap px-6 py-4 font-medium text-gray-900 dark:text-gray-100">
+                                    <td class="whitespace-nowrap px-6 py-4 font-medium text-slate-900 ">
                                         {{ $recentTransaction->item->name }}
                                     </td>
                                     <td class="whitespace-nowrap px-6 py-4">
                                         <span
-                                            class="inline-flex rounded-full bg-indigo-100 px-2.5 py-1 text-xs font-medium text-indigo-700 dark:bg-indigo-900 dark:text-indigo-300">
+                                            class="inline-flex rounded-full bg-indigo-100 px-2.5 py-1 text-xs font-medium text-indigo-700 ">
                                             {{ $recentTransaction->type->label() }}
                                         </span>
                                     </td>
-                                    <td class="whitespace-nowrap px-6 py-4 text-right font-medium text-gray-900 dark:text-gray-100">
+                                    <td class="whitespace-nowrap px-6 py-4 text-right font-medium text-slate-900 ">
                                         {{ number_format($recentTransaction->quantity) }}
                                     </td>
-                                    <td class="whitespace-nowrap px-6 py-4 text-gray-600 dark:text-gray-300">
+                                    <td class="whitespace-nowrap px-6 py-4 text-slate-600 ">
                                         {{ $recentTransaction->user->name }}
                                     </td>
-                                    <td class="min-w-[12rem] px-6 py-4 text-gray-600 dark:text-gray-300">
+                                    <td class="min-w-[12rem] px-6 py-4 text-slate-600 ">
                                         {{ $recentTransaction->notes ?: '—' }}
                                     </td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="6" class="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
+                                    <td colspan="6" class="px-6 py-8 text-center text-slate-500 ">
                                         No stock movements recorded yet.
                                     </td>
                                 </tr>

@@ -4,7 +4,7 @@
 <div>
     <x-input-label for="category_id" value="Category" />
     <select id="category_id" name="category_id" required
-        class="mt-1 block w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm">
+        class="mt-1 block w-full border-slate-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-lg shadow-sm">
         <option value="">-- Select Category --</option>
         @foreach ($categories as $category)
             <option value="{{ $category->id }}"
@@ -35,7 +35,7 @@
         <x-input-label for="current_stock" value="Initial Stock" />
         <x-text-input id="current_stock" name="current_stock" type="number" min="0" class="mt-1 block w-full"
             :value="old('current_stock', 0)" required />
-        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">
+        <p class="text-xs text-slate-500 mt-1">
             Quantity currently on hand when adding this item to the system.
         </p>
         <x-input-error :messages="$errors->get('current_stock')" class="mt-2" />
@@ -57,6 +57,6 @@
 </div>
 
 <div class="flex items-center justify-end mt-6">
-    <a href="{{ route('items.index') }}" class="text-sm text-gray-600 dark:text-gray-400 mr-4">Cancel</a>
+    <a href="{{ route('items.index') }}" class="text-sm text-slate-600 mr-4">Cancel</a>
     <x-primary-button>{{ isset($item) ? 'Update' : 'Save' }}</x-primary-button>
 </div>

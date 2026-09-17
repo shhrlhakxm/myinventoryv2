@@ -2,11 +2,11 @@
 <x-app-layout>
     <x-slot name="header">
         <div class="flex justify-between items-center">
-            <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
+            <h2 class="font-semibold text-xl text-slate-800 leading-tight">
                 Categories
             </h2>
             <a href="{{ route('categories.create') }}"
-                class="inline-flex items-center px-4 py-2 bg-gray-800 dark:bg-gray-200 text-white dark:text-gray-800 text-xs font-semibold uppercase rounded-md">
+                class="inline-flex items-center rounded-lg bg-indigo-600 px-4 py-2 text-xs font-semibold uppercase tracking-wider text-white shadow-sm transition hover:bg-indigo-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2">
                 + Add Category
             </a>
         </div>
@@ -16,20 +16,20 @@
         <div class="max-w-5xl mx-auto sm:px-6 lg:px-8">
 
             @if (session('status'))
-                <div class="mb-4 p-4 bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 rounded-md">
+                <div class="mb-4 rounded-lg border border-emerald-200 bg-emerald-50 p-4 text-emerald-800">
                     {{ session('status') }}
                 </div>
             @endif
 
             @if (session('error'))
-                <div class="mb-4 p-4 bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200 rounded-md">
+                <div class="mb-4 rounded-lg border border-rose-200 bg-rose-50 p-4 text-rose-800">
                     {{ session('error') }}
                 </div>
             @endif
 
-            <div class="bg-white dark:bg-gray-800 shadow sm:rounded-lg overflow-hidden">
+            <div class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
                 <table class="w-full text-sm text-left">
-                    <thead class="bg-gray-50 dark:bg-gray-900 text-gray-600 dark:text-gray-400 uppercase text-xs">
+                    <thead class="bg-slate-50 text-slate-600 uppercase text-xs">
                         <tr>
                             <th class="px-6 py-3">Name</th>
                             <th class="px-6 py-3">Code</th>
@@ -39,25 +39,25 @@
                     </thead>
                     <tbody>
                         @forelse ($categories as $category)
-                            <tr class="border-t dark:border-gray-700">
-                                <td class="px-6 py-4 text-gray-900 dark:text-gray-100">{{ $category->name }}</td>
-                                <td class="px-6 py-4 text-gray-900 dark:text-gray-100">{{ $category->code }}</td>
-                                <td class="px-6 py-4 text-gray-900 dark:text-gray-100">{{ $category->items_count }}</td>
+                            <tr class="border-t border-slate-200 transition-colors hover:bg-slate-50">
+                                <td class="px-6 py-4 text-slate-900 ">{{ $category->name }}</td>
+                                <td class="px-6 py-4 text-slate-900 ">{{ $category->code }}</td>
+                                <td class="px-6 py-4 text-slate-900 ">{{ $category->items_count }}</td>
                                 <td class="px-6 py-4 text-right space-x-3">
                                     <a href="{{ route('categories.edit', $category) }}"
-                                        class="text-indigo-600 dark:text-indigo-400 hover:underline">Edit</a>
+                                        class="text-indigo-600 hover:underline">Edit</a>
                                     <form method="POST" action="{{ route('categories.destroy', $category) }}"
                                         class="inline"
                                         onsubmit="return confirm('Delete this category?')">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="text-red-600 dark:text-red-400 hover:underline">Delete</button>
+                                        <button type="submit" class="text-rose-600 hover:underline">Delete</button>
                                     </form>
                                 </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="4" class="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
+                                <td colspan="4" class="px-6 py-8 text-center text-slate-500 ">
                                     No categories yet.
                                 </td>
                             </tr>
