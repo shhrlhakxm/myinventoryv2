@@ -1,4 +1,5 @@
 <?php
+
 // app/Http/Controllers/ItemController.php
 
 namespace App\Http\Controllers;
@@ -9,6 +10,7 @@ use App\Http\Requests\Item\UpdateItemRequest;
 use App\Models\Category;
 use App\Models\Item;
 use App\Services\StockMovementService;
+use Illuminate\View\View;
 
 class ItemController extends Controller
 {
@@ -53,6 +55,18 @@ class ItemController extends Controller
         return redirect()
             ->route('items.index')
             ->with('status', 'Item created successfully.');
+    }
+
+    public function show(Item $item): View
+    {
+        $item->load('category');
+
+        $transactions = $item->inventoryTransactions()
+            ->with('user')
+            ->latest()
+            ->paginate(15);
+
+        return view('items.show', compact('item', 'transactions'));
     }
 
     public function edit(Item $item)

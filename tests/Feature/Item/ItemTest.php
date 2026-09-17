@@ -77,4 +77,48 @@ class ItemTest extends TestCase
             'notes' => 'Initial stock',
         ]);
     }
+
+    public function test_authenticated_user_can_view_only_the_selected_items_transaction_history(): void
+    {
+        $user = User::factory()->create(['role' => 'staff']);
+        $item = Item::factory()->create(['name' => 'Arabica Beans']);
+        $otherItem = Item::factory()->create();
+
+        InventoryTransaction::factory()->create([
+            'item_id' => $item->id,
+            'user_id' => $user->id,
+            'type' => TransactionType::In,
+            'notes' => 'Received arabica delivery',
+        ]);
+
+        InventoryTransaction::factory()->create([
+            'item_id' => $otherItem->id,
+            'user_id' => $user->id,
+            'type' => TransactionType::In,
+            'notes' => 'Unrelated item transaction',
+        ]);
+
+        $response = $this->actingAs($user)
+            ->get(route('items.show', $item));
+
+        $response
+            ->assertOk()
+            ->assertViewIs('items.show')
+            ->assertViewHas(
+                'item',
+                fn (Item $viewItem): bool => $viewItem->is($item),
+            )
+            ->assertSeeText('Arabica Beans')
+            ->assertSeeText('Received arabica delivery')
+            ->assertDontSeeText('Unrelated item transaction');
+    }
+
+    public function test_guest_cannot_view_item_transaction_history(): void
+    {
+        $item = Item::factory()->create();
+
+        $response = $this->get(route('items.show', $item));
+
+        $response->assertRedirect(route('login'));
+    }
 }
