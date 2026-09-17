@@ -2,7 +2,7 @@
 
 - **Last reviewed:** 17 September 2026
 - **Repository:** `C:\laragon\www\MyInventoryv2\myinventoryv2`
-- **Branch / HEAD:** `main` at `c8c315b` (matches `origin/main`; this documentation update is uncommitted)
+- **Default branch:** `main` (protected by the active `Protect main` ruleset)
 - **Local URL:** `http://myinventoryv2.test`
 - **Stack:** Laravel 13.30.1, PHP 8.4.12, MySQL, Blade, Alpine.js 3.17, Tailwind CSS 3.4, Vite 8.2
 - **Local mail:** SMTP via Mailpit (`127.0.0.1:1025`; UI at `http://localhost:8025`)
@@ -35,8 +35,9 @@ The main inventory workflow is working. The project still needs a simple dashboa
 
 ### Verification snapshot
 
-- `php artisan test --compact` on 15 September: **40 tests passed, 121 assertions** in 2.79 seconds.
-- `npm run build` on 13 September: **passed** with Vite 8.2.2.
+- `composer test --compact` on 17 September: **48 tests passed, 157 assertions**.
+- `npm run build` on 17 September: **passed** with Vite 8.2.2.
+- GitHub Actions CI on 17 September: **passed** on `ubuntu-latest` with the PHPUnit suite and Vite production build.
 - `php artisan route:list --except-vendor`: **41 application routes**.
 - All six migration files currently present report as run in the local MySQL database.
 - The local `users.role` column is `enum('superadmin', 'admin', 'staff')`.
@@ -110,15 +111,15 @@ The fixed superadmin cannot be deleted or assigned a different role through user
 - [x] Breeze authentication, password, verification, and profile tests.
 - [x] Basic home-page and unit placeholders.
 - [x] Fourteen user-management feature tests cover:
-  - staff cannot open user management;
-  - admin cannot delete self, another admin, or a superadmin;
-  - admin can delete staff;
-  - admin can promote staff;
-  - admin cannot change their own role or a superadmin's role;
-  - superadmin cannot delete or change its own protected account;
-  - superadmin can update or delete other users;
-  - users with inventory transactions cannot be deleted;
-  - the complete create -> notification -> set password -> login flow, including protection against an empty initial password.
+    - staff cannot open user management;
+    - admin cannot delete self, another admin, or a superadmin;
+    - admin can delete staff;
+    - admin can promote staff;
+    - admin cannot change their own role or a superadmin's role;
+    - superadmin cannot delete or change its own protected account;
+    - superadmin can update or delete other users;
+    - users with inventory transactions cannot be deleted;
+    - the complete create -> notification -> set password -> login flow, including protection against an empty initial password.
 - [x] Profile tests confirm that a normal user can delete their account while the superadmin cannot.
 
 ### Missing or incomplete coverage
@@ -163,9 +164,9 @@ Complete these stages in order. Keep the work presentation-focused and avoid add
 Follow [`CI_CD_GUIDE.md`](CI_CD_GUIDE.md) and complete these stages in order. Establish CI before granting any workflow permission to deploy.
 
 1. [x] Document the CI/CD concepts, project commands, deployment stages, and safety rules.
-2. [ ] Add a GitHub Actions CI workflow for pull requests and pushes to `main`.
-3. [ ] Verify that CI uses the isolated SQLite test database, runs `composer test --compact`, and runs `npm run build`.
-4. [ ] Require the passing CI check before merging into `main`, where the GitHub plan supports branch protection.
+2. [x] Add a GitHub Actions CI workflow for pull requests and pushes to `main`.
+3. [x] Verify that CI uses the isolated SQLite test database, runs `composer test --compact`, and runs `npm run build`.
+4. [x] Require the passing CI check before merging into `main`, where the GitHub plan supports branch protection.
 5. [ ] Select and document the production host, URL, services, authentication method, and rollback method.
 6. [ ] Configure a protected GitHub `production` environment and secrets without committing credentials.
 7. [ ] Add a manually approved CD workflow for CI-approved revisions from `main`.
@@ -218,8 +219,9 @@ Complete one small milestone at a time:
 
 ## 7. Repository state
 
-- Local `main` matched `origin/main` at `c8c315b` (`fix(categories): remove unused show route`) before this documentation update.
-- The current uncommitted milestone contains the CI/CD guide and project-status roadmap update.
+- `main` includes the GitHub Actions CI workflow for PHPUnit and the Vite production build.
+- The active `Protect main` ruleset requires pull requests, an up-to-date passing `Tests and build` check, and resolved conversations; it also blocks deletion and force pushes.
+- Future changes should be developed on focused branches and merged through pull requests.
 
 ---
 
@@ -242,9 +244,9 @@ vendor/bin/pint --format agent
 
 ## 9. Seeded local credentials
 
-| Email | Password | Role |
-| --- | --- | --- |
+| Email            | Password   | Role       |
+| ---------------- | ---------- | ---------- |
 | `admin@test.com` | `admin123` | superadmin |
-| `user@test.com` | `user123` | staff |
+| `user@test.com`  | `user123`  | staff      |
 
 No admin-role account is seeded by default.
