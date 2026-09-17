@@ -79,6 +79,7 @@ The selected target for this noncommercial portfolio demonstration is:
 - **Production URL:** Pending the first Render service creation and verified deployment.
 - **Source authentication:** Render's GitHub App receives access to the repository. No GitHub or hosting token is committed.
 - **Database authentication:** A dedicated Aiven service user is supplied through Render environment variables. The Aiven CA certificate is supplied as a Render secret file.
+- **TLS secret-file access:** Render mounts Docker secret files for group ID `1000`. The container adds Apache's `www-data` user to that group so PDO can read `/etc/secrets/ca.pem`.
 - **Initial deployment method:** Manual deployment from the Render dashboard with automatic deployment disabled.
 - **Application rollback:** Use one of Render Free's two most recent deploys. Database migrations remain forward-only and require separate recovery planning.
 - **Database recovery:** Use Aiven's managed free-tier backups and retain a separate logical export before risky schema changes.
@@ -162,3 +163,4 @@ Complete and merge the Render container configuration through the protected pull
 - [Render Free service limits](https://render.com/docs/free)
 - [Render environment variables and secret files](https://render.com/docs/configure-environment-variables)
 - [Aiven for MySQL Free Tier](https://aiven.io/docs/products/mysql/concepts/mysql-free-tier)
+- [Render Docker secret files](https://render.com/docs/docker-secrets)
