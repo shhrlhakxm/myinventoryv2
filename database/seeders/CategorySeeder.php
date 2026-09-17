@@ -3,7 +3,6 @@
 namespace Database\Seeders;
 
 use App\Models\Category;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class CategorySeeder extends Seeder
@@ -13,9 +12,20 @@ class CategorySeeder extends Seeder
      */
     public function run(): void
     {
-         Category::insert([
-            ['name' => 'Packaging','code' => 'P01', 'description' => 'Packaging materials'],
-            ['name'=> 'Coffee and Beverages','code' => 'CB01', 'description' => 'Coffee and beverages']
-        ]);
+        Category::updateOrCreate(
+            ['code' => 'P01'],
+            [
+                'name' => 'Packaging',
+                'description' => 'Packaging materials',
+            ],
+        );
+
+        Category::updateOrCreate(
+            ['code' => 'CB01'],
+            [
+                'name' => 'Coffee and Beverages',
+                'description' => 'Coffee and beverages',
+            ],
+        );
     }
 }
