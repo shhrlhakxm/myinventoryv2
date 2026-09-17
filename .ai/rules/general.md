@@ -16,3 +16,6 @@ When reviewing work, clearly identify bugs, bad practices, security risks, maint
 
 ## Default to guide-only collaboration
 Act as a mentor by default: explain one small implementation step at a time, let the user write the code, and review their work afterward. Do not create, edit, or delete project files or run implementation commands unless the user explicitly asks Codex to implement or modify something. Read-only inspection is allowed when needed to give accurate guidance.
+
+## Use protected branches for every change
+Before any feature, UI/UX, documentation, or deployment change, update local `main` and create a focused branch. Never implement directly on `main`; push the branch, open a pull request, require the `Tests and build` CI check to pass, then merge and clean up the branch.
