@@ -140,8 +140,23 @@ The fixed superadmin cannot be deleted or assigned a different role through user
 - [x] Prevented deletion of a user who owns inventory transactions so the transaction history is retained.
 - [x] Add focused Category, Item, and Stock Movement feature tests.
 - [x] Replace the placeholder dashboard with item count, low-stock count, and recent transactions.
-- [ ] Add global and per-item transaction-history pages.
+- [x] Add global and per-item transaction-history pages.
 - [ ] Replace the default Laravel README and application name with portfolio-specific information.
+
+### UI/UX modernization milestone
+
+Complete these stages in order. Keep the work presentation-focused and avoid adding new business modules during this milestone.
+
+1. [x] Establish a single light-theme foundation and remove application dark-mode variants.
+2. [ ] Define a modern cafe visual system using warm cream surfaces, espresso text, coffee-brown primary actions, sage success states, amber warnings, and restrained rose danger states.
+3. [ ] Introduce cafe-appropriate typography and replace the default framework logo with a simple inventory-and-coffee identity.
+4. [ ] Refine the application shell and dashboard hierarchy, including clearer metrics, low-stock attention, recent activity, and quick actions.
+5. [ ] Simplify item-table actions and use staff-friendly labels such as Receive Stock, Record Usage, and Adjust Count.
+6. [ ] Standardize transaction and stock-status badges without relying on color alone.
+7. [ ] Improve forms, validation feedback, success/error messages, and empty states with useful guidance and next actions.
+8. [ ] Improve mobile layouts, replacing cramped tables with readable item cards or responsive table patterns where appropriate.
+9. [ ] Verify keyboard navigation, visible focus states, color contrast, 200% text resizing, and responsive behavior.
+10. [ ] Run the full test suite and frontend build, complete a browser walkthrough, and capture final portfolio screenshots.
 
 ### Simple decisions for this portfolio
 
@@ -169,8 +184,9 @@ Complete one small milestone at a time:
 1. Add focused tests for the main Category, Item, and Stock Movement workflows. Cover the successful action and the most important failure for each feature.
 2. Build the dashboard with three parts: total items, low-stock items, and five recent transactions.
 3. Build a paginated transaction list, then reuse the same idea for an individual item's history.
-4. Prepare the portfolio presentation: update the application name and README, explain the features and setup steps, and include a few screenshots.
-5. Run the full test suite and frontend build, then verify the application from login through a complete stock movement.
+4. Complete the UI/UX modernization milestone before taking final screenshots.
+5. Prepare the portfolio presentation: update the application name and README, explain the features and setup steps, and include a few screenshots.
+6. Run the full test suite and frontend build, then verify the application from login through a complete stock movement.
 
 ---
 
