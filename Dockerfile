@@ -76,6 +76,8 @@ RUN mkdir -p \
         storage/logs \
         bootstrap/cache \
     && chown -R www-data:www-data storage bootstrap/cache \
+    && groupadd --gid 1000 render-secrets \
+    && usermod --append --groups render-secrets www-data \
     && sed -i 's/\r$//' /usr/local/bin/start \
     && sed -ri 's/^Listen 80$/Listen 10000/' /etc/apache2/ports.conf \
     && chmod +x /usr/local/bin/start \
