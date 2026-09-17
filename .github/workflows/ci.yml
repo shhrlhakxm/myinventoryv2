@@ -46,7 +46,7 @@ jobs:
       - name: Install JavaScript dependencies
         run: npm ci
 
-      - name: Run PHPUnit tests
-        run: composer test --compact
       - name: Build frontend assets
         run: npm run build
+      - name: Run PHPUnit tests
+        run: composer test --compact
