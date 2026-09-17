@@ -1,8 +1,8 @@
 # MyInventory v2 - Project Status
 
-- **Last reviewed:** 15 September 2026
+- **Last reviewed:** 17 September 2026
 - **Repository:** `C:\laragon\www\MyInventoryv2\myinventoryv2`
-- **Branch / HEAD:** `main` at `960b6d2` (matches `origin/main`)
+- **Branch / HEAD:** `main` at `c8c315b` (matches `origin/main`; this documentation update is uncommitted)
 - **Local URL:** `http://myinventoryv2.test`
 - **Stack:** Laravel 13.30.1, PHP 8.4.12, MySQL, Blade, Alpine.js 3.17, Tailwind CSS 3.4, Vite 8.2
 - **Local mail:** SMTP via Mailpit (`127.0.0.1:1025`; UI at `http://localhost:8025`)
@@ -21,7 +21,7 @@ Build a simple cafe inventory application that demonstrates:
 - focused PHPUnit feature tests and clear Git commits;
 - a portfolio README that explains the project and how to run it.
 
-Advanced business features such as purchase orders, suppliers, barcode scanning, multiple warehouses, enterprise audit systems, and production deployment infrastructure are outside the current portfolio scope.
+Advanced business features such as purchase orders, suppliers, barcode scanning, multiple warehouses, and enterprise audit systems are outside the current portfolio scope. A small CI/CD workflow is included as a portfolio learning milestone, but it should not grow into enterprise deployment infrastructure.
 
 ---
 
@@ -158,6 +158,20 @@ Complete these stages in order. Keep the work presentation-focused and avoid add
 9. [ ] Verify keyboard navigation, visible focus states, color contrast, 200% text resizing, and responsive behavior.
 10. [ ] Run the full test suite and frontend build, complete a browser walkthrough, and capture final portfolio screenshots.
 
+### CI/CD pipeline milestone
+
+Follow [`CI_CD_GUIDE.md`](CI_CD_GUIDE.md) and complete these stages in order. Establish CI before granting any workflow permission to deploy.
+
+1. [x] Document the CI/CD concepts, project commands, deployment stages, and safety rules.
+2. [ ] Add a GitHub Actions CI workflow for pull requests and pushes to `main`.
+3. [ ] Verify that CI uses the isolated SQLite test database, runs `composer test --compact`, and runs `npm run build`.
+4. [ ] Require the passing CI check before merging into `main`, where the GitHub plan supports branch protection.
+5. [ ] Select and document the production host, URL, services, authentication method, and rollback method.
+6. [ ] Configure a protected GitHub `production` environment and secrets without committing credentials.
+7. [ ] Add a manually approved CD workflow for CI-approved revisions from `main`.
+8. [ ] Add safe migration, optimization, queue-restart, health-check, concurrency, and rollback handling for the selected host.
+9. [ ] Complete a test deployment and document the verified release and recovery procedure.
+
 ### Simple decisions for this portfolio
 
 - Public registration can remain enabled because it demonstrates Laravel Breeze and allows a reviewer to create a staff account. Registered users receive the default `staff` role.
@@ -170,7 +184,7 @@ Complete these stages in order. Keep the work presentation-focused and avoid add
 - Add user deactivation or soft deletes.
 - Add search, filtering, CSV export, item images, or barcode scanning.
 - Add suppliers, purchase orders, multiple locations, or advanced reporting.
-- Add production deployment, rate limiting, and more extensive audit controls.
+- Add rate limiting and more extensive audit controls.
 
 ---
 
@@ -181,10 +195,10 @@ Complete one small milestone at a time:
 - [x] Fix the two superadmin authorization bugs and add focused tests for those exact cases.
 - [x] Add a simple guard that stops a user with inventory transactions from being deleted, with one test.
 
-1. Add focused tests for the main Category, Item, and Stock Movement workflows. Cover the successful action and the most important failure for each feature.
-2. Build the dashboard with three parts: total items, low-stock items, and five recent transactions.
-3. Build a paginated transaction list, then reuse the same idea for an individual item's history.
-4. Complete the UI/UX modernization milestone before taking final screenshots.
+1. Implement the Stage 1 GitHub Actions CI workflow described in `CI_CD_GUIDE.md` and verify it on GitHub.
+2. Configure the passing CI workflow as the merge gate for `main`, where supported.
+3. Choose the production deployment target before designing the CD workflow.
+4. Complete the remaining UI/UX modernization stages before taking final screenshots.
 5. Prepare the portfolio presentation: update the application name and README, explain the features and setup steps, and include a few screenshots.
 6. Run the full test suite and frontend build, then verify the application from login through a complete stock movement.
 
@@ -204,8 +218,8 @@ Complete one small milestone at a time:
 
 ## 7. Repository state
 
-- Local `main` matches `origin/main` at `960b6d2` (`fix(auth): protect superadmin account`).
-- The current uncommitted milestone contains the user deletion guard, its error feedback and feature test, and this status update.
+- Local `main` matched `origin/main` at `c8c315b` (`fix(categories): remove unused show route`) before this documentation update.
+- The current uncommitted milestone contains the CI/CD guide and project-status roadmap update.
 
 ---
 
