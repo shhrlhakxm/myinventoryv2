@@ -20,7 +20,7 @@ Route::get('/dashboard', DashboardController::class)
 Route::middleware(['auth', 'admin'])->group(function () {
 
     // Category routes (Admin only)
-    Route::resource('categories', CategoryController::class);
+    Route::resource('categories', CategoryController::class)->except(['show']);
 
     // User routes (Admin only)
     Route::resource('users', UserController::class)->except(['show', 'edit', 'update']);
