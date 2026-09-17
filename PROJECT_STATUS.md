@@ -173,6 +173,17 @@ Follow [`CI_CD_GUIDE.md`](CI_CD_GUIDE.md) and complete these stages in order. Es
 8. [ ] Add safe migration, optimization, queue-restart, health-check, concurrency, and rollback handling for the selected host.
 9. [ ] Complete a test deployment and document the verified release and recovery procedure.
 
+#### Selected free deployment target
+
+- **Application:** Render Free Web Service using Docker, PHP 8.4, and Apache.
+- **Database:** Aiven for MySQL Free Tier using TLS.
+- Render and Aiven accounts were created without payment information.
+- The Aiven MySQL service, `myinventoryv2` database, and dedicated application user have been created.
+- Render container preparation is in progress on the `deployment/render-free-hosting` branch.
+- The Render Web Service has not been created, so the production URL is still pending.
+- CI/CD Stage 5 remains incomplete until the first deployment, production URL, authentication method, and rollback path are verified together.
+- No CD workflow has been created, and no hosting credentials or secrets have been committed.
+
 ### Simple decisions for this portfolio
 
 - Public registration can remain enabled because it demonstrates Laravel Breeze and allows a reviewer to create a staff account. Registered users receive the default `staff` role.
@@ -196,9 +207,9 @@ Complete one small milestone at a time:
 - [x] Fix the two superadmin authorization bugs and add focused tests for those exact cases.
 - [x] Add a simple guard that stops a user with inventory transactions from being deleted, with one test.
 
-1. Implement the Stage 1 GitHub Actions CI workflow described in `CI_CD_GUIDE.md` and verify it on GitHub.
-2. Configure the passing CI workflow as the merge gate for `main`, where supported.
-3. Choose the production deployment target before designing the CD workflow.
+1. Complete local verification of the Render container configuration, then commit and merge it through a pull request after the required `Tests and build` check passes.
+2. Create the Render Free Web Service with automatic deployment disabled and configure its production environment variables, Aiven credentials, and CA certificate only in the Render dashboard.
+3. Perform the first manual deployment, record the assigned production URL, and verify migrations, `/up`, login, an inventory journey, and rollback behavior before designing the CD workflow.
 4. Complete the remaining UI/UX modernization stages before taking final screenshots.
 5. Prepare the portfolio presentation: update the application name and README, explain the features and setup steps, and include a few screenshots.
 6. Run the full test suite and frontend build, then verify the application from login through a complete stock movement.

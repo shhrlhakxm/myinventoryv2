@@ -70,6 +70,32 @@ Do not create the deployment workflow until the host is selected. The commands, 
 
 Record the chosen host, production URL, PHP/runtime services, deploy method, and rollback method before implementing CD.
 
+#### Selected free portfolio target
+
+The selected target for this noncommercial portfolio demonstration is:
+
+- **Application hosting:** Render Free Web Service using a Docker image with PHP 8.4 and Apache.
+- **Database hosting:** Aiven for MySQL Free Tier using a TLS-encrypted external connection.
+- **Production URL:** Pending the first Render service creation and verified deployment.
+- **Source authentication:** Render's GitHub App receives access to the repository. No GitHub or hosting token is committed.
+- **Database authentication:** A dedicated Aiven service user is supplied through Render environment variables. The Aiven CA certificate is supplied as a Render secret file.
+- **Initial deployment method:** Manual deployment from the Render dashboard with automatic deployment disabled.
+- **Application rollback:** Use one of Render Free's two most recent deploys. Database migrations remain forward-only and require separate recovery planning.
+- **Database recovery:** Use Aiven's managed free-tier backups and retain a separate logical export before risky schema changes.
+
+Alwaysdata Free Public Cloud was evaluated first but rejected because its current registration flow required credit/debit-card validation. No payment details were provided.
+
+This target is suitable only for a portfolio demonstration:
+
+- Render Free services spin down after 15 minutes without inbound traffic and can take about one minute to restart.
+- The Render filesystem is ephemeral, so it must not store persistent application data or user uploads.
+- Render Free does not provide SSH, background workers, persistent disks, or pre-deploy commands.
+- Database migrations therefore run through the container startup script using `php artisan migrate --force`.
+- Queue work uses the synchronous driver because a separate free background worker is unavailable.
+- Aiven Free provides a single-node MySQL service with 1 GB RAM and 1 GB storage. It may power down after prolonged inactivity.
+- If a free allowance is exhausted and no payment method exists, the service must suspend rather than incur charges.
+- Hosting credentials, database credentials, application keys, and TLS certificate contents must remain in the hosting dashboards and must never be committed.
+
 ### Stage 4: Continuous Delivery
 
 The first CD workflow should deploy only a commit from `main` that has passed CI. Use a protected GitHub `production` environment and require manual approval when that feature is available.
@@ -124,7 +150,7 @@ The exact order will be finalized for the selected host. Database migrations req
 
 ## Next action
 
-Implement and verify the Stage 1 GitHub Actions CI workflow. Select the production host only after CI is stable; then tailor the CD design to that host.
+Complete and merge the Render container configuration through the protected pull-request workflow. Then create the Render Free Web Service with automatic deployment disabled, configure production environment variables and the Aiven CA certificate through the Render dashboard, and perform the first manual deployment. Do not create a CD workflow until the live URL, startup migration, health check, and rollback behavior have been verified.
 
 ## Official references
 
@@ -132,3 +158,7 @@ Implement and verify the Stage 1 GitHub Actions CI workflow. Select the producti
 - [GitHub deployment environments and protection rules](https://docs.github.com/en/actions/reference/workflows-and-actions/deployments-and-environments)
 - [GitHub Actions secure-use reference](https://docs.github.com/en/actions/reference/security/secure-use)
 - [Laravel deployment documentation](https://laravel.com/docs/13.x/deployment)
+- [Render Docker deployment](https://render.com/docs/docker)
+- [Render Free service limits](https://render.com/docs/free)
+- [Render environment variables and secret files](https://render.com/docs/configure-environment-variables)
+- [Aiven for MySQL Free Tier](https://aiven.io/docs/products/mysql/concepts/mysql-free-tier)
