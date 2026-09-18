@@ -12,14 +12,34 @@ class DatabaseSeederTest extends TestCase
 
     public function test_demo_data_can_be_seeded_repeatedly(): void
     {
+        config()->set([
+            'superadmin.name' => 'SuperAdmin',
+            'superadmin.email' => 'superadmin@test.com',
+            'superadmin.password' => 'test-superadmin-password',
+        ]);
+        
         $this->seed(DatabaseSeeder::class);
         $this->seed(DatabaseSeeder::class);
 
-        $this->assertDatabaseCount('users', 2);
+        $this->assertDatabaseCount('users', 3);
         $this->assertDatabaseCount('categories', 2);
         $this->assertDatabaseCount('items', 4);
         $this->assertDatabaseCount('inventory_transactions', 7);
 
+        $this->assertDatabaseHas('users', [
+            'email' => 'superadmin@test.com',
+            'role' => 'superadmin',
+        ]);
+
+        $this->assertCredentials([
+            'email' => 'superadmin@test.com',
+            'password' => 'test-superadmin-password',
+        ]);
+
+        $this->assertDatabaseHas('users', [
+            'email' => 'admin@test.com',
+            'role' => 'admin',
+        ]);
         $this->assertCredentials([
             'email' => 'admin@test.com',
             'password' => 'admin123',

@@ -13,12 +13,26 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
+        $superAdminEmail = config('superadmin.email');
+        $superAdminPassword = config('superadmin.password');
+
+        if (filled($superAdminEmail) && filled($superAdminPassword)) {
+            User::firstOrCreate(
+                ['email' => $superAdminEmail],
+                [
+                    'name' => config('superadmin.name'),
+                    'password' => Hash::make($superAdminPassword),
+                    'role' => 'superadmin',
+                ],
+            );
+        }
+
         User::updateOrCreate(
             ['email' => 'admin@test.com'],
             [
                 'name' => 'Ahmad',
                 'password' => Hash::make('admin123'),
-                'role' => 'superadmin',
+                'role' => 'admin',
             ],
         );
 
