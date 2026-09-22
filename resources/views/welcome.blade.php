@@ -209,7 +209,7 @@
 
                             <div class="grid gap-3 text-sm sm:grid-cols-2">
                                 <div class="rounded-xl border border-indigo-200 bg-white p-4 shadow-sm">
-                                    <p class="text-xs font-semibold uppercase tracking-wide text-indigo-600">Superadmin</p>
+                                    <p class="text-xs font-semibold uppercase tracking-wide text-indigo-600">Admin</p>
                                     <p class="mt-2 font-medium text-slate-900">admin@test.com</p>
                                     <p class="text-slate-500">Password: admin123</p>
                                 </div>
