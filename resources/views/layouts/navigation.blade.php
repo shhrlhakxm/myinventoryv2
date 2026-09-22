@@ -43,7 +43,8 @@
                 <x-dropdown align="right" width="48">
                     <x-slot name="trigger">
                         <button type="button"
-                            class="inline-flex items-center rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-medium leading-4 text-slate-700 transition hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2">
+                            class="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-sm font-medium leading-4 text-slate-700 transition hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2">
+                            <div>{{ \Illuminate\Support\Str::headline(Auth::user()->role) }}</div>
                             <div>{{ Auth::user()->name }}</div>
 
                             <div class="ms-1">
